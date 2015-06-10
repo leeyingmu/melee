@@ -6,12 +6,12 @@ from setuptools import setup, find_packages
 __version__ = '1.0.0.gm'
 
 install_requires = [
-	'Flask', 
-	'pycrypto', 
-	'pyyaml', 
-	'simplejson', 
-	'gevent', 
-	'requests', 
+    'Flask', 
+    'pycrypto', 
+    'pyyaml', 
+    'simplejson', 
+    'gevent', 
+    'requests', 
     'iso8601'
 ]
 if sys.version_info < (2, 7):
@@ -30,10 +30,10 @@ setup(
     description='common web server framework based on Flask',
     long_description=__doc__,
     url='https://github.com/leeyingmu/melee',
-	entry_points = {
-		'console_scripts': [
-			'meleeok = demo:meleeok' 
+    entry_points = {
+        'console_scripts': [
+            'meleeok = demo:meleeok' 
         ]
-	}
+    }
 )
 
