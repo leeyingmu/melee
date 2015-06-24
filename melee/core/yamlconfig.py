@@ -10,7 +10,15 @@ class YamlConfig(dict):
         with open(config_file) as f:
             self.update(yaml.load(f) or {})
 
-    def __getattr__(self, key):
-        return self.get(key, None)
+    @property
+    def servicename(self):
+        return self.get('main', {}).get('servicename') or 'template'
+
+    @property
+    def log(self):
+        log = self.get('main', {}).get('log') or {}
+        log['rootname'] = self.servicename
+        return log
+
 
     

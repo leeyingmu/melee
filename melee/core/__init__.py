@@ -4,6 +4,7 @@ basic core tools used by other modules in melee
 '''
 import sys, os, pkgutil
 from .outers import *
+from .log import MeleeLogging
 
 class MeleeEnv(object):
     '''the melee runtime environment'''
@@ -19,12 +20,15 @@ class MeleeEnv(object):
         self.init_logger()
         self.init_statsd()
 
+
     def init_config(self):
         from .yamlconfig import YamlConfig
-        self.config = YamlConfig(config_file=config_file)
+        self.config = YamlConfig(config_file=self.config_file)
 
     def init_logger(self):
-        pass
+        self.logging = MeleeLogging(**self.config.log)
+        self.logger = self.logging.getLogger(self.config.servicename)
+        self.logger.info('logger init success')
 
     def init_statsd(self):
         pass
@@ -56,6 +60,7 @@ class MeleeEnv(object):
 
 meleeenv = MeleeEnv()
 config = meleeenv.config
+logger = meleeenv.logger
 
 
 

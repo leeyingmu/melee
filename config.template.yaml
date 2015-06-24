@@ -1,0 +1,9 @@
+main:
+  servicename: template
+  log:
+    handlers: ['stdout', 'file']
+    levels:
+      default: info
+      template: debug
+      template.rds: debug
+    filename: /tmp/template.log
