@@ -12,7 +12,8 @@ install_requires = [
     'simplejson', 
     'gevent', 
     'requests', 
-    'iso8601'
+    'iso8601',
+    'blinker'
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']

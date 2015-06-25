@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from melee.core import meleeenv
+from melee.core.env import meleeenv
 
 config = meleeenv.config
 logger = meleeenv.logger
