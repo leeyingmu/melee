@@ -3,7 +3,11 @@ main:
   log:
     handlers: ['stdout', 'file']
     levels:
-      default: info
+      default: debug
       template: debug
       template.rds: debug
     filename: /tmp/template.log
+  request:
+    sigkeys:
+      '1': 'meleedefaulttestsignaturekeys123'
+      '110': 'meleeservertoserversignaturekeys'

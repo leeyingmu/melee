@@ -60,6 +60,7 @@ class MeleeEnv(object):
 meleeenv = MeleeEnv()
 config = meleeenv.config
 logger = meleeenv.logger
+logging = meleeenv.logging
 
 
 

@@ -8,7 +8,8 @@ class MeleeLogger(logging.getLoggerClass()):
 
     def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None):
         if isinstance(msg, str) and msg.lower() in ['traceback', 'exception']:
-            l = ['EXCEPTION ']
+            l = [msg.upper()]
+            args = [arg if isinstance(arg, basestring) else repr(arg) for arg in args]
             l.extend(args)
             msg = '\n'.join(l).replace('\n', '\n####### ')
             args = None
@@ -81,6 +82,8 @@ class MeleeLogging(object):
         logger = logging.getLogger(name)
         level = str(self.levels.get(name, None) or self.levels.get('default')).upper()
         logger.setLevel(level)
+        # not propagate to father loggers
+        logger.propagate = 0
         for handler_name in self.handlers:
             h = None
             if handler_name == 'null':

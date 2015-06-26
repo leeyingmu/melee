@@ -10,7 +10,7 @@ class LLNFormatError(Exception):
 def escape_string(data):
     if '\r' in data or '\n' in data or '\\' in data:
         return json.dumps(data, ensure_ascii=False)[1:-1]
-    return unicode(data, 'utf-8')
+    return unicode(data, 'utf-8') if isinstance(data, str) else data
 
 def unescape_string(data):
     if '\\' in data:
@@ -71,7 +71,6 @@ def dumps(msgs):
             s.append(dump_dict(msg))
         else:
             s.append(dump_object(msg))
-    print s
     return '|'.join(s)
 
 def load_meta(s, i):

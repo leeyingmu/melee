@@ -20,5 +20,10 @@ class YamlConfig(dict):
         log['rootname'] = self.servicename
         return log
 
+    def sigkey(self, sig_kv):
+        return self.get('main', {}).get('request', {}).get('sigkeys', {}).get(sig_kv)
+
+
+
 
     
