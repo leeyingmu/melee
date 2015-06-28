@@ -10,9 +10,9 @@ logger = meleeenv.logger
 from melee.webhttp import MeleeApp, helpers
 from melee.webhttp.exceptions import *
 
-app = MeleeApp(__name__).app
+meleeapp = MeleeApp(__name__)
 
-blueprint = Blueprint('template', __name__, url_prefix='/template')
+blueprint = Blueprint('template', __name__, url_prefix='/test')
 
 @blueprint.route('/ok', methods=['GET', 'POST'])
 def foo():
@@ -26,7 +26,7 @@ def badrequest():
 def servererror():
     raise RuntimeError('test error')
 
-app.register_blueprint(blueprint)
+meleeapp.mount([blueprint], prefix={'template': '/template'})
 
 
 class Test(unittest.TestCase):
@@ -35,9 +35,9 @@ class Test(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        app.config["TESTING"] = True
-        app.config["DEBUG"] = True
-        cls.app = app.test_client()
+        meleeapp.app.config["TESTING"] = True
+        meleeapp.app.config["DEBUG"] = True
+        cls.app = meleeapp.app.test_client()
 
 
     @classmethod
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         return json.loads(rs)
 
     def test_ok(self):
-        url = '/template/ok'
+        url = '/template/test/ok'
         content = {
             'test': 'ok'
         }
@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
 
 
     def test_badrequest(self):
-        url = '/template/badrequest'
+        url = '/template/test/badrequest'
         content = {}
         rs = self.send_request(url, content)
         self.assertEqual(400, rs.get('meta').get('code'))
@@ -74,7 +74,7 @@ class Test(unittest.TestCase):
 
     def test_signature_error(self):
         self.sig_key = 'f'*32
-        url = '/template/ok'
+        url = '/template/test/ok'
         content = {}
         rs = self.send_request(url, content)
         self.assertEqual(400, rs.get('meta').get('code'))
@@ -83,7 +83,7 @@ class Test(unittest.TestCase):
 
 
     def test_servererror(self):
-        url = '/template/servererror'
+        url = '/template/test/servererror'
         content = {}
         rs = self.send_request(url, content)
         self.assertEqual(500, rs.get('meta').get('code'))

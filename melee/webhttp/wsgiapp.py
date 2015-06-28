@@ -22,7 +22,7 @@ class MeleeApp(object):
             415, 416, 417, 418, 422, 428, 429, 431, 500, 501, 502, 503, 504, 505]:
             self.app.register_error_handler(code, self.error_handler)
 
-        logger.info('meleeapp %s started' % config.servicename)
+        logger.info('STARTUP', 'meleeapp %s started' % config.servicename)
 
     def verify_signature(self, sig_kv, signature, content):
         key = config.sigkey(str(sig_kv))
@@ -91,59 +91,36 @@ class MeleeApp(object):
             return jsonify(meta=error.info)
 
 
-    # def mount(self, block, mapping={}, skiplist=[]):
-    #     block_name =  block.__class__.__name__
-    #     if block_name == 'module':
-    #         block_name = block.__name__
-    #     logger.info('MOUNT_BLOCK', block_name)
-    #     initfunc = getattr(block, 'init', None)
-    #     if initfunc is  None or not callable(initfunc):
-    #         raise Exception('%s does not have callable init func'%(block))
-    #     blueprints = initfunc(self.app)
-    #     toskips = set(skiplist)
-    #     for bp in blueprints:
-    #         if bp.name in mapping:
-    #             url_prefix = '%s%s'%(mapping[bp.name], bp.url_prefix or '')
-    #         else:
-    #             url_prefix = bp.url_prefix
-
-    #         logger.info('MOUNT_BLUEPRINT', ('name', bp.name), ('url_prefix', url_prefix),
-    #             ('skip', bp.name in toskips))
-    #         if bp.name in toskips:
-    #             continue
-    #         self._mount(bp, url_prefix)
-
-    # def get_remote_addr(self, forwarded_for, num_proxies=1):
-    #     if len(forwarded_for) >= num_proxies:
-    #         return forwarded_for[-1 * num_proxies]
-
-    # def __call__(self, environ, start_response):
-    #     """Shortcut for :attr:`wsgi_app`."""
-    #     getter = environ.get
-    #     forwarded_proto = getter('HTTP_X_FORWARDED_PROTO', '')
-    #     forwarded_for = getter('HTTP_X_FORWARDED_FOR', '').split(',')
-    #     forwarded_host = getter('HTTP_X_FORWARDED_HOST', '')
-    #     environ.update({
-    #         'werkzeug.proxy_fix.orig_wsgi_url_scheme':  getter('wsgi.url_scheme'),
-    #         'werkzeug.proxy_fix.orig_remote_addr':      getter('REMOTE_ADDR'),
-    #         'werkzeug.proxy_fix.orig_http_host':        getter('HTTP_HOST')
-    #     })
-    #     forwarded_for = [x for x in [x.strip() for x in forwarded_for] if x]
-    #     remote_addr = self.get_remote_addr(forwarded_for, config.num_proxies)
-    #     if remote_addr is not None:
-    #         environ['REMOTE_ADDR'] = remote_addr
-    #     if forwarded_host:
-    #         environ['HTTP_HOST'] = forwarded_host
-    #     if forwarded_proto:
-    #         environ['wsgi.url_scheme'] = forwarded_proto
-    #     return self.flaskapp(environ, start_response)
+    def mount(self, blueprints, prefix=None):
+        """bind the specific blueprints to the current flask app.
+        :param blueprints: list, the list of blueprints
+        :param prefix: dict, the url_prefix mapping definition for every blueprint
+        Example Code:
+            >>>blueprint = Blueprint('template', __name__, url_prefix='/test')
+            >>>@blueprint.route('/foo')
+            ...def foo():
+            ...    return jsonify('foo ok')
+            ...
+            >>>meleeapp.mount([blueprint], prefix={'template': '/template'})
+        now you can access the url 'http://host:port/template/test/xxx'
+        """
+        if not blueprints:
+            return
+        for b in blueprints:
+            if prefix and b.name in prefix:
+                url_prefix = '%s%s' % (prefix[b.name], b.url_prefix or '')
+            else:
+                url_prefix = b.url_prefix
+            self.app.register_blueprint(b, url_prefix=url_prefix)
+            self.logger.info('STARTUP', 'register blueprint: %s' % url_prefix)
 
 
-    # def _mount(self, obj, url_prefix):
-    #     if isinstance(obj, Blueprint):
-    #         self.app.register_blueprint(obj, url_prefix=url_prefix)
-    #     else:
-    #         raise AppIsNotMountableException('%s is not mountable, must be Blueproint'%(obj))
+    def __call__(self, environ, start_response):
+        """Mark this MeleeApp as a WSGI App
+        So all middleware that support WSGI protoal can run the instance of it.
+        """
+        return self.app(environ, start_response)
+
 
 
     # def run_server(self):
