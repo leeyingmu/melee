@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from melee.core.env import meleeenv
 from melee.webhttp import *
 
@@ -9,4 +10,4 @@ logger = meleeenv.logger
 app = MeleeApp(__name__)
 
 if __name__ == '__main__':
-    pass
+    sys.exit(app.run())

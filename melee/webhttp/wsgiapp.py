@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, traceback, hmac, hashlib, time
+import flask
 from flask import Flask, Blueprint, request, g, json, jsonify, after_this_request
 from ..core.env import config, logger, logging
 from .exceptions import MeleeHTTPException, BadRequest, SignatureError, ServerError
@@ -74,7 +75,7 @@ class MeleeApp(object):
 
         self.logger.info('REQUEST', request.remote_addr, request.method,
             request.url, request.headers.get('Content-Length', '0'), g.jsondata, 
-            response.status_code, code, str(response.headers.get('Content-Length', '0')), json.loads(response.response[0]))
+            response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response)
 
         return response
 
@@ -122,68 +123,42 @@ class MeleeApp(object):
         return self.app(environ, start_response)
 
 
+    def runserver(self, arguments):
+        @self.app.route('/')
+        def helloworld():
+            # return flask.make_response(('wellcome to melee!', 200, None))
+            return 'wellcome to melee!'
 
-    # def run_server(self):
-    #     from docopt import docopt
-    #     arguments = docopt(runserver_usage, help=True)
-
-    #     from werkzeug.serving import run_simple
-    #     options = {}
-    #     options.setdefault('use_reloader', True)
-    #     options.setdefault('use_debugger', True)
+        from werkzeug.serving import run_simple
+        options = {}
+        options.setdefault('use_reloader', True)
+        options.setdefault('use_debugger', True)
         
-    #     run_simple(arguments['--host'], int(arguments['--port']), self, **options)
-
-    # def run_initdb(self):
-    #     from docopt import docopt
-    #     arguments = docopt(initdb_usage, help=True)
-
-    #     from ..redynadb import redyna_manager
-    #     redyna_manager.init_models()
-    #     return 0
+        return run_simple(arguments['--host'], int(arguments['--port']), self, **options)
 
 
-    # def run_command(self):
-    #     from commandr import Run
-    #     sys.argv.pop(1)
-    #     return Run()
+    def run(self):
+        usage = """MeleeApp Running in Command-Line
+
+        Usage:
+          server.py runserver [--host=<host>] [--port=<port>]
+          server.py runtask
+          server.py initdb
+
+        Options:
+          -h --help      Show this
+          --host=<host>  the host used to run the server [default: 127.0.0.1]
+          --port=<port>  the port used to run the server [default: 5000]
+
+        """
+        from docopt import docopt
+        arguments = docopt(usage)
+        if arguments['runserver']:
+            return self.runserver(arguments)
+        else:
+            print(usage)
+            raise RuntimeError('not supported command')
 
 
-    # def run_task(self):
-    #     from ..common.tasklet import run_tasklet
-    #     sys.argv.pop(1)
-    #     task_conf = {}
-    #     for name, value in config.items():
-    #         if 'tasklet' in value:
-    #             for name, param in value['tasklet'].items():
-    #                 param.update(name=name)
-    #                 task_conf[name] = param
-    #     run_tasklet('runtask', task_conf)
-
-    # def run(self):
-    #     """
-    #     Prepares manager to receive command line input. Usually run
-    #     inside "if __name__ == "__main__" block in a Python script.
-    #     """
-
-    #     if len(sys.argv) == 1:
-    #         print(usage)
-    #         sys.exit(0)
-
-    #     command = sys.argv[1].lower()
-    #     funcs = {
-    #         'runserver': self.run_server,
-    #         'initdb': self.run_initdb,
-    #         'runcommand': self.run_command,
-    #         'runtask': self.run_task,
-    #     }
-    #     func = funcs.get(command)
-
-    #     if not func:
-    #         if command not in ['-h', '--help']:
-    #             print('Command %s is not supported\n'%(command))
-    #         print(usage)
-    #         sys.exit(-1)
-    #     sys.exit(func())
 
         
