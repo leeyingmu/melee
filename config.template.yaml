@@ -11,3 +11,6 @@ main:
     sigkeys:
       '1': 'meleedefaulttestsignaturekeys123'
       '110': 'meleeservertoserversignaturekeys'
+
+tasklets:
+  - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}

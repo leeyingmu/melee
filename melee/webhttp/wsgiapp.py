@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sys, traceback, hmac, hashlib, time
+import os, sys, traceback, hmac, hashlib, time
 import flask
 from flask import Flask, Blueprint, request, g, json, jsonify, after_this_request
 from ..core.env import config, logger, logging
@@ -27,8 +27,8 @@ class MeleeApp(object):
         def helloworld():
             # return flask.make_response(('wellcome to melee!', 200, None))
             return 'wellcome to melee!'
-
-        logger.info('STARTUP', 'meleeapp %s started' % config.servicename)
+        
+        logger.info('STARTUP', 'meleeapp %s created' % config.servicename)
 
     def verify_signature(self, sig_kv, signature, content):
         key = config.sigkey(str(sig_kv))
@@ -138,31 +138,59 @@ class MeleeApp(object):
         options = {}
         options.setdefault('use_reloader', True)
         options.setdefault('use_debugger', True)
-        
-        return run_simple(arguments['--host'], int(arguments['--port']), self, **options)
+        logger.info('STARTUP', 'meleeapp %s started' % config.servicename)
+        run_simple(arguments['--host'], int(arguments['--port']), self, **options)
 
+
+    def runtasklet(self, arguments):
+        self.logger.debug(config.servicename, 'tasklets starting ...')
+        from ..core.tasklet import TaskletManager
+        tasklet_manager = TaskletManager.get(config.tasklets)
+        tasklet_manager.startall()
 
     def run(self):
         usage = """MeleeApp Running in Command-Line
 
+        runserver: run the wsgiserver in one process
+        runtasklet: run all tasklets defined in the config file in one parent process with subprocesses
+
         Usage:
           server.py runserver [--host=<host>] [--port=<port>]
-          server.py runtask
+          server.py runtasklet [--pythonpath=<pythonpath>] [--chdir=<chdir>]
           server.py initdb
 
         Options:
-          -h --help      Show this
-          --host=<host>  the host used to run the server [default: 127.0.0.1]
-          --port=<port>  the port used to run the server [default: 5000]
+          -h --help                         Show this
+          --host=<host>                     the host used to run the server [default: 127.0.0.1]
+          --port=<port>                     the port used to run the server [default: 5000]
+          --pythonpath=<pythonpath>         Add additonal python sys.path.
+          --chdir=<chdir>                   Chdir to specified directory before apps loading.  
 
         """
+
         from docopt import docopt
         arguments = docopt(usage)
+        # process common command options
+        self._process_cmd_options(arguments)
+
         if arguments['runserver']:
+
             return self.runserver(arguments)
+        elif arguments['runtasklet']:
+            return self.runtasklet(arguments)
         else:
             print(usage)
             raise RuntimeError('not supported command')
+
+    def _process_cmd_options(self, arguments):
+        if arguments['--pythonpath']:
+            paths = arguments['--pythonpath'].split(',')
+            for path in reversed(paths):
+                if os.path.exists(path) and os.path.isabs(path):
+                    sys.path.insert(0, path)
+        if arguments['--chdir']:
+            os.chdir(arguments['--chdir'])
+
 
 
 

@@ -23,6 +23,10 @@ class YamlConfig(dict):
     def sigkey(self, sig_kv):
         return self.get('main', {}).get('request', {}).get('sigkeys', {}).get(sig_kv)
 
+    @property
+    def tasklets(self):
+        return self.get('tasklets')
+
 
 
 
