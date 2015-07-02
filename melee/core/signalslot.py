@@ -3,23 +3,23 @@
 use blinker to build a more easily using sync signal subscriber mechanism.
 
 Using Example Code:
-    >>>from melee.core.signalsub import signal, signalsub
+    >>>from melee.core.signalslot import signal, signalslot
     >>>sig1=signal('signal.test1')
     >>>sig2=signal('signal.test2')
     >>>sig3=signal('signal.test1')
     >>>sig1 == sig3
     True
-    >>> @signalsub('signal.test1')
+    >>> @signalslot('signal.test1')
     ... def func1(v):
     ...     print 'in func1 %s' % v
     ...     return 'func1 result %s' % v
     ...
-    >>> @signalsub('signal.test2')
+    >>> @signalslot('signal.test2')
     ... def func2(v):
     ...     print 'in func2 %s' % v
     ...     return 'func2 result %s' % v
     ...
-    >>> @signalsub('signal.test1')
+    >>> @signalslot('signal.test1')
     ... def func3(v):
     ...     print 'in func3 %s' % v
     ...     return 'func3 result %s' % v
@@ -32,7 +32,7 @@ Using Example Code:
 
 from blinker import signal
 
-def signalsub(name):
+def signalslot(name):
     def wrapped(func):
         sig = signal(name)
         sig.connect(func)
@@ -49,13 +49,13 @@ if __name__ == '__main__':
     sig2 = signal('test.s2')
     print sig1 is sig2
     
-    @signalsub('test.s1')
+    @signalslot('test.s1')
     def func1(v):
         print 'in func1 %s' % v
         return 'func1 result %s' % v
 
-    @signalsub('test.s2')
-    @signalsub('test.s1')
+    @signalslot('test.s2')
+    @signalslot('test.s1')
     def func2(v):
         print 'in func2 %s' % v
         return 'func2 result %s' % v

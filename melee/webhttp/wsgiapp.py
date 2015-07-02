@@ -23,6 +23,11 @@ class MeleeApp(object):
             415, 416, 417, 418, 422, 428, 429, 431, 500, 501, 502, 503, 504, 505]:
             self.app.register_error_handler(code, self.error_handler)
 
+        @self.app.route('/')
+        def helloworld():
+            # return flask.make_response(('wellcome to melee!', 200, None))
+            return 'wellcome to melee!'
+
         logger.info('STARTUP', 'meleeapp %s started' % config.servicename)
 
     def verify_signature(self, sig_kv, signature, content):
@@ -73,7 +78,7 @@ class MeleeApp(object):
         else:
             code = g.response_code  
 
-        self.logger.info('REQUEST', request.remote_addr, request.method,
+        self.logger.info('REQUEST', request.remote_addr, request.method, g.reqeust_cost,
             request.url, request.headers.get('Content-Length', '0'), g.jsondata, 
             response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response)
 
@@ -124,10 +129,10 @@ class MeleeApp(object):
 
 
     def runserver(self, arguments):
-        @self.app.route('/')
-        def helloworld():
-            # return flask.make_response(('wellcome to melee!', 200, None))
-            return 'wellcome to melee!'
+        # @self.app.route('/')
+        # def helloworld():
+        #     # return flask.make_response(('wellcome to melee!', 200, None))
+        #     return 'wellcome to melee!'
 
         from werkzeug.serving import run_simple
         options = {}

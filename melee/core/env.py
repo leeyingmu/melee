@@ -6,9 +6,24 @@ import sys, os, pkgutil
 from .log import MeleeLogging
 
 class MeleeEnv(object):
-    '''the melee runtime environment'''
+    '''the melee runtime environment
+    :param config_file: default is config.yaml in the running directory, 
+                        or you can specifiy it with the absolute path in the __init__ method, 
+                        or you can define it use environment variable ``MELEEENV_CONFIG`` with it's absolute path
+    Example Code:
+        >>>meleeenv = MeleeEnv() # use the default config.yaml
+        >>>
+        >>>meleeenv = MeleeEnv(config_file='/abc/def/config.yaml')
+        >>>
+        >>>import os
+        >>>os.environ['MELEEENV_CONFIG'] = '/abc/def/config.yaml'
+        >>>meleeenv = MeleeEnv()
+    '''
 
-    def __init__(self, config_file='config.yaml'):
+    def __init__(self, config_file=None):
+        if not config_file:
+            config_file = os.environ.get('MELEEENV_CONFIG', None)
+        config_file = config_file or 'config.yaml'
         if os.path.isabs(config_file):
             self.config_file = config_file
         else:
@@ -18,6 +33,7 @@ class MeleeEnv(object):
         self.init_config()
         self.init_logger()
         self.init_statsd()
+
 
 
     def init_config(self):
