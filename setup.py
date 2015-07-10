@@ -13,7 +13,9 @@ install_requires = [
     'gevent', 
     'requests', 
     'iso8601',
-    'blinker'
+    'blinker',
+    'SQLAlchemy',
+    'mysql-python'
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']
