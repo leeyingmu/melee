@@ -1,0 +1,16 @@
+main:
+  servicename: template
+  log:
+    handlers: ['stdout', 'file']
+    levels:
+      default: debug
+      template: debug
+      template.rds: debug
+    filename: /tmp/template.log
+  request:
+    sigkeys:
+      '1': 'meleedefaulttestsignaturekeys123'
+      '110': 'meleeservertoserversignaturekeys'
+
+tasklets:
+  - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}
