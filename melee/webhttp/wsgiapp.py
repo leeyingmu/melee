@@ -30,17 +30,17 @@ class MeleeApp(object):
         
         logger.info('STARTUP', 'meleeapp %s created' % config.servicename)
 
-    def verify_signature(self, sig_kv, signature, content):
+    def verify_signature(self, sig_kv, signature, content, timestamp):
         key = config.sigkey(str(sig_kv))
         if not key:
             return False
         if isinstance(content, unicode):
-            content = content.encode('utf-8')
-        sig = hmac.new(key, content, hashlib.sha256).hexdigest()
-        return sig == signature
+            rawdata = '%s%s'% (content, timestamp)
+        sig = hmac.new(key, rawdata.encode('utf-8'), hashlib.sha256).hexdigest().lower()
+        return sig == signature.lower()
 
     def before_request(self):
-        self.logger.debug('REQUEST', request.url, request.endpoint, request.values.to_dict())
+        self.logger.debug('REQUEST', request.path, request.endpoint, request.values.to_dict(), request.headers.get('User-Agent'))
         g.rawdata = request.get_data(cache=True, parse_form_data=False)
         g.jsondata = {}
         if request.endpoint is None:
@@ -50,16 +50,20 @@ class MeleeApp(object):
         content = request.values.get('content')
         signature = request.values.get('signature', '')
         sig_kv = request.values.get('sig_kv')
+        timestamp = request.values.get('timestamp') or 0
 
         if content:
-            if not self.verify_signature(sig_kv, signature, content):
+            if not timestamp or (time.time()*1000)-int(timestamp) > 86400000:
+                raise BadRequest(description='reqeust expired %s' % timestamp)
+
+            if not self.verify_signature(sig_kv, signature, content, timestamp):
                 raise SignatureError(description='Signature Not Correct.')
             try:
                 g.jsondata = json.loads(content)
             except:
                 g.jsondata = {}
 
-        self.logger.debug('REQUEST', request.url, request.endpoint, g.jsondata)
+        self.logger.debug('REQUEST', request.path, request.endpoint, g.jsondata)
 
     def teardown_request(self, exc):
         if exc:
@@ -79,8 +83,8 @@ class MeleeApp(object):
             code = g.response_code  
 
         self.logger.info('REQUEST', request.remote_addr, request.method, g.reqeust_cost,
-            request.url, request.headers.get('Content-Length', '0'), g.jsondata, 
-            response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response)
+            request.path, request.headers.get('Content-Length', '0'), g.jsondata, 
+            response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response, request.headers.get('User-Agent'))
 
         return response
 
