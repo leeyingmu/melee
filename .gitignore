@@ -36,6 +36,7 @@ config.yaml
 
 # Eclipse specific files
 .settings/
+project.properties
 
 # Intellij specific files
 *.iml
