@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+  # -*- coding: utf-8 -*-
 
 import sys
 from setuptools import setup, find_packages
@@ -15,7 +15,8 @@ install_requires = [
     'iso8601',
     'blinker',
     'SQLAlchemy',
-    'mysql-python'
+    'mysql-python',
+    'redis'
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']
@@ -25,7 +26,7 @@ setup(
     name = "melee",
     version = __version__,
     packages = find_packages(exclude=["tests.*", "tests"]),
-	install_requires = install_requires, 
+    install_requires = install_requires, 
     license='BSD',
     author='yingmulee',
     author_email='yingmulee@163.com',
