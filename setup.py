@@ -25,6 +25,7 @@ setup(
     name = "melee",
     version = __version__,
     packages = find_packages(exclude=["tests.*", "tests"]),
+	install_requires = install_requires, 
     license='BSD',
     author='yingmulee',
     author_email='yingmulee@163.com',
