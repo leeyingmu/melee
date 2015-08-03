@@ -63,6 +63,14 @@ class Test(unittest.TestCase):
 
         self.assertEqual({}, rs.get('data'))
 
+    def test_jsonp(self):
+        url = '/template/test/ok'
+        content = {
+            'test': 'ok'
+        }
+        _, rs = helpers.send_test_request(self.app, url, content, sig_kv=self.sig_kv, sig_key=self.sig_key, post=False, getparams={'jsonpcallback': 'abcd'})
+        self.assertTrue('abcd' in rs)
+
 
     def test_badrequest(self):
         url = '/template/test/badrequest'

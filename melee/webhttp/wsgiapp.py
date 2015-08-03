@@ -34,9 +34,10 @@ class MeleeApp(object):
         key = config.sigkey(str(sig_kv))
         if not key:
             return False
+        rawdata = '%s%s'% (content, timestamp)
         if isinstance(content, unicode):
-            rawdata = '%s%s'% (content, timestamp)
-        sig = hmac.new(key, rawdata.encode('utf-8'), hashlib.sha256).hexdigest().lower()
+            rawdata = rawdata.encode('utf-8')
+        sig = hmac.new(key, rawdata, hashlib.sha256).hexdigest().lower()
         return sig == signature.lower()
 
     def before_request(self):
@@ -51,6 +52,7 @@ class MeleeApp(object):
         signature = request.values.get('signature', '')
         sig_kv = request.values.get('sig_kv')
         timestamp = request.values.get('timestamp') or 0
+        g.jsonpcallback = request.values.get('jsonpcallback')
 
         if content:
             if not timestamp or (time.time()*1000)-int(timestamp) > 86400000:
@@ -80,7 +82,11 @@ class MeleeApp(object):
         if getattr(g, 'response_code', None) is None:
             code = response.status_code
         else:
-            code = g.response_code  
+            code = g.response_code
+
+        # 支持jsonp, 解决ajax get 请求跨域问题
+        if g.jsonpcallback:
+            response.response = '%s(%s)' % (g.jsonpcallback, response.response)
 
         self.logger.info('REQUEST', request.remote_addr, request.method, g.reqeust_cost,
             request.path, request.headers.get('Content-Length', '0'), g.jsondata, 
