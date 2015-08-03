@@ -48,6 +48,21 @@ class YamlConfig(dict):
         sharding_threshold = int(self.get('main', {}).get('redis', {}).get('sharding_threshold'))
         return self._redisintances[int(shardingid)/sharding_threshold] if self._redisintances else None
 
+    @property
+    def aliyun_key(self):
+        keys = {
+            'regionid': self.get('main').get('aliyun').get('regionid') or 'cn-hangzhou.aliyuncs.com',
+            'access_key_id': self.get('main').get('aliyun').get('access_key_id'),
+            'access_key_secret': self.get('main').get('aliyun').get('access_key_secret')
+        }
+        return keys
+
+    @property
+    def aliyun_oss(self):
+        return self.get('main').get('aliyun').get('oss')
+
+    
+
 
 
 

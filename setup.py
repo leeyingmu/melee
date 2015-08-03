@@ -16,7 +16,8 @@ install_requires = [
     'blinker',
     'SQLAlchemy',
     'mysql-python',
-    'redis'
+    'redis',
+    'docopt'
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']

@@ -12,5 +12,12 @@ main:
       '1': 'meleedefaulttestsignaturekeys123'
       '110': 'meleeservertoserversignaturekeys'
 
+  aliyun:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    access_key_id: YWCdSM9iBtjhcRD4
+    access_key_secret: LbenstyVqSmr7p6z6r8GuiyYCIFNmJ
+    oss:
+      config: hclzconfigdev
+
 tasklets:
   - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}
