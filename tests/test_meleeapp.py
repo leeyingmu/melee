@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         content = {
             'test': 'ok'
         }
-        _, rs = helpers.send_test_request(self.app, url, content, sig_kv=self.sig_kv, sig_key=self.sig_key, post=False, getparams={'jsonpcallback': 'abcd'})
+        _, rs = helpers.send_test_request(self.app, url, content, sig_kv=self.sig_kv, sig_key=self.sig_key, post=False, getparams={'callback': 'abcd'})
         self.assertTrue('abcd' in rs)
 
 
