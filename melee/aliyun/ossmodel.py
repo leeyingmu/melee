@@ -4,8 +4,6 @@ import sys, traceback
 from oss import oss_xml_handler
 from oss.oss_api import *
 
-from ..core.env import logger
-
 def format_key(key):
     if not key:
         return key
@@ -47,15 +45,10 @@ class OSSObject(object):
     @property
     def data(self):
         if getattr(self, '_data', None) is None:
-            try:
-                rs = self.client.get_object(self.bucket, self.key)
-                if rs.status != 200:
-                    raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
-                self._data = rs.read()
-            except:
-                logger.error('EXCEPTION', sys.exc_info()[1])
-                logger.error('TRACEBACK', traceback.format_exc())
-                self._data = ''
+            rs = self.client.get_object(self.bucket, self.key)
+            if rs.status != 200:
+                raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
+            self._data = rs.read()
         return self._data
 
     def refresh(self):
