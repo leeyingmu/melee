@@ -29,4 +29,15 @@ def send_test_request(client, url, content, sig_kv=None, sig_key=None, files=Non
         rs =  client.get(url, query_string=query_string)
     return rs.status_code, rs.data
 
+def get_valid_phone(phone):
+    if not phone:
+        return phone
+    if len(phone) == 14:
+        phone = phone[3:]
+    if not phone.startswith('1'):
+        phone = None
+    if not len(phone) == 11:
+        phone = None
+    return phone
+
 
