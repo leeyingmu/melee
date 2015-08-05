@@ -61,6 +61,10 @@ class YamlConfig(dict):
     def aliyun_oss(self):
         return self.get('main').get('aliyun').get('oss')
 
+    @property
+    def baiduyun_ak(self):
+        return self.get('main').get('baiduyun').get('ak')
+
     
 
 

@@ -36,7 +36,7 @@ def get_valid_phone(phone):
         phone = phone[3:]
     if not phone.startswith('1'):
         phone = None
-    if not len(phone) == 11:
+    if phone and not len(phone) == 11:
         phone = None
     return phone
 

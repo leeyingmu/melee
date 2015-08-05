@@ -159,6 +159,9 @@ class MeleeApp(object):
         tasklet_manager = TaskletManager.get(config.tasklets)
         tasklet_manager.startall()
 
+    def initdb(self, arguments):
+        pass
+
     def run(self):
         usage = """MeleeApp Running in Command-Line
 
@@ -168,7 +171,7 @@ class MeleeApp(object):
         Usage:
           server.py runserver [--host=<host>] [--port=<port>]
           server.py runtasklet [--pythonpath=<pythonpath>] [--chdir=<chdir>]
-          server.py initdb
+          server.py initdb [--baiduyun]
 
         Options:
           -h --help                         Show this
@@ -185,10 +188,11 @@ class MeleeApp(object):
         self._process_cmd_options(arguments)
 
         if arguments['runserver']:
-
             return self.runserver(arguments)
         elif arguments['runtasklet']:
             return self.runtasklet(arguments)
+        elif arguments['initdb']:
+            return self.initdb(arguments)
         else:
             print(usage)
             raise RuntimeError('not supported command')

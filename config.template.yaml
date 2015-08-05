@@ -19,5 +19,15 @@ main:
     oss:
       config: hclzconfigdev
 
+  baiduyun:
+    ak: 'toZrtVntXNkSjMxNYprKOVlz'
+
+  redis:
+    key_prefix: template
+    sharding_threshold: 10000000
+    instances:
+      - redis://192.168.0.11:6379/0
+      - redis://192.168.0.11:6379/0
+
 tasklets:
   - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}
