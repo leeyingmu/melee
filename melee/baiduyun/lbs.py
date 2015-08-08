@@ -81,7 +81,7 @@ class LBSTable(object):
         return True
 
 
-    def query_nearby(self, location, **kwargs):
+    def lbsquery_nearby(self, location, **kwargs):
         '''
         检索指定坐标附近
         参数参考百度lbs云“云检索api”
@@ -90,11 +90,13 @@ class LBSTable(object):
         kwargs['location'] = '%s,%s' % (location[0], location[1]) if isinstance(location, list) else location
         kwargs['ak'] = self.ak
         kwargs['geotable_id'] = self.id
+        kwargs['page_index'] = kwargs.get('page_index') or 0
+        kwargs['page_size'] = kwargs.get('page_size') or 10
         data = self._send_request(url, params=kwargs, post=False)
-        return data.get('contents')
+        return data.get('contents') or [], kwargs['page_index']+1
 
 
-    def query_local(self, region, **kwargs):
+    def lbsquery_local(self, region, **kwargs):
         '''
         检索指定"市/区"内
         参数参考百度lbs云“云检索api”
@@ -103,10 +105,12 @@ class LBSTable(object):
         kwargs['region'] = region  
         kwargs['ak'] = self.ak
         kwargs['geotable_id'] = self.id
+        kwargs['page_index'] = kwargs.get('page_index') or 0
+        kwargs['page_size'] = kwargs.get('page_size') or 10
         data = self._send_request(url, params=kwargs, post=False)
-        return data.get('contents')
+        return data.get('contents') or [], kwargs['page_index']+1
 
-    def query_bound(self, bounds):
+    def lbsquery_bound(self, bounds, **kwargs):
         '''
         检索指定矩形区域内
         参数参考百度lbs云“云检索api”
@@ -115,7 +119,22 @@ class LBSTable(object):
         kwargs['bounds'] = bounds  
         kwargs['ak'] = self.ak
         kwargs['geotable_id'] = self.id
+        kwargs['page_index'] = kwargs.get('page_index') or 0
+        kwargs['page_size'] = kwargs.get('page_size') or 10
         data = self._send_request(url, params=kwargs, post=False)
-        return data.get('contents')
+        return data.get('contents') or [], kwargs['page_index']+1
+
+    def query_pois(self, **kwargs):
+        '''
+        查询记录
+        参数参考百度lbs云“云检索api”
+        '''
+        url = 'http://api.map.baidu.com/geodata/v3/poi/list'
+        kwargs['ak'] = self.ak
+        kwargs['geotable_id'] = self.id
+        data = self._send_request(url, params=kwargs, post=False)
+        return data.get('pois')
+
+
 
 
