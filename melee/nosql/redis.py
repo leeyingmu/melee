@@ -46,8 +46,8 @@ class RedisHashModel(BaseRedisModel):
 
     def __getattr__(self, name):
         # 所有没有实际定义的属性，都会从此处获取
-        if name in ['_origindata']:
-            return super(BaseObject, self).__getattr__(name)
+        if name in ['__origindata']:
+            return super(RedisHashModel, self).__getattr__(name)
         return self._origindata.get(name) or None
 
     @property
