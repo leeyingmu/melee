@@ -160,7 +160,12 @@ class MeleeApp(object):
         tasklet_manager.startall()
 
     def initdb(self, arguments):
-        pass
+        self.logger.info(config.servicename, 'start intidb ...')
+        from ..core.initdb import InitDBModel
+        for sa in InitDBModel.__subclasses__():
+            sa.init_schema()
+            logger.info('init db schema: %s' % sa)
+        self.logger.info(config.servicename, 'end intidb')
 
     def run(self):
         usage = """MeleeApp Running in Command-Line

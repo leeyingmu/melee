@@ -15,6 +15,10 @@ class YamlConfig(dict):
         return self.get('main', {}).get('servicename') or 'template'
 
     @property
+    def debugmode(self):
+        return 'true' == str(self.get('main').get('debugmode')).lower()
+
+    @property
     def log(self):
         log = self.get('main', {}).get('log') or {}
         log['rootname'] = self.servicename
@@ -64,6 +68,9 @@ class YamlConfig(dict):
     @property
     def baiduyun_ak(self):
         return self.get('main').get('baiduyun').get('ak')
+
+    def rds_url(self, index=0):
+        return self.get('main').get('rds')[index]
 
     
 

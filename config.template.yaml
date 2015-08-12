@@ -1,5 +1,6 @@
 main:
   servicename: template
+  debugmode: true
   log:
     handlers: ['stdout', 'file']
     levels:
@@ -28,6 +29,9 @@ main:
     instances:
       - redis://192.168.0.11:6379/0
       - redis://192.168.0.11:6379/0
+  rds:
+    - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
+    - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
 
 tasklets:
   - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}
