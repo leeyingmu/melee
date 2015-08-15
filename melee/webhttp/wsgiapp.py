@@ -129,7 +129,7 @@ class MeleeApp(object):
             else:
                 url_prefix = b.url_prefix
             self.app.register_blueprint(b, url_prefix=url_prefix)
-            self.logger.info('STARTUP', 'register blueprint: %s' % url_prefix)
+            self.logger.info('STARTUP', 'register blueprint %s: %s' % (b.name, url_prefix))
 
 
     def __call__(self, environ, start_response):
