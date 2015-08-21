@@ -7,6 +7,10 @@ def format_ok_response(data=None):
     from flask import jsonify
     return jsonify(meta={'code': 200, 'message': 'ok'}, data=data) if data is not None else jsonify(meta={'code': 200, 'message': 'ok'})
 
+def format_str_response(src, code=200):
+    from flask import make_response
+    return make_response((src, code, None))
+
 def send_test_request(client, url, content, sig_kv=None, sig_key=None, files=None, post=True, getparams=None):
     t = int(time.time()*1000)
     content = json.dumps(content)
@@ -27,6 +31,10 @@ def send_test_request(client, url, content, sig_kv=None, sig_key=None, files=Non
             data.update(getparams)
         query_string = '&'.join(['%s=%s' % (k,v) for k,v in data.iteritems()])
         rs =  client.get(url, query_string=query_string)
+    return rs.status_code, rs.data
+
+def send_test_str_request(client, url, data):
+    rs = client.post(url, data=data)
     return rs.status_code, rs.data
 
 def get_valid_phone(phone):

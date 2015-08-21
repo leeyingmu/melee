@@ -41,8 +41,8 @@ class MeleeApp(object):
         return sig == signature.lower()
 
     def before_request(self):
-        self.logger.debug('REQUEST', request.path, request.endpoint, request.values.to_dict(), request.headers.get('User-Agent'))
-        g.rawdata = request.get_data(cache=True, parse_form_data=False)
+        self.logger.debug('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
+        g.rawdata = request.data
         g.jsondata = {}
         if request.endpoint is None:
             return
@@ -56,7 +56,7 @@ class MeleeApp(object):
 
         if content:
             if not timestamp or (time.time()*1000)-int(timestamp) > 86400000:
-                raise BadRequest(description='reqeust expired %s' % timestamp)
+                raise BadRequest(description='request expired %s' % timestamp)
 
             if not self.verify_signature(sig_kv, signature, content, timestamp):
                 raise SignatureError(description='Signature Not Correct.')
@@ -65,7 +65,7 @@ class MeleeApp(object):
             except:
                 g.jsondata = {}
 
-        self.logger.debug('REQUEST', request.path, request.endpoint, g.jsondata)
+        self.logger.debug('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict())
 
     def teardown_request(self, exc):
         if exc:
@@ -77,7 +77,7 @@ class MeleeApp(object):
         if response is None:
             return response
 
-        g.reqeust_cost = int(time.time()*1000) - g.startms
+        g.request_cost = int(time.time()*1000) - g.startms
 
         if getattr(g, 'response_code', None) is None:
             code = response.status_code
@@ -89,8 +89,8 @@ class MeleeApp(object):
             #response.response = '%s(%s)' % (g.jsonpcallback, response.response)
         response.headers['Access-Control-Allow-Origin'] = '*'
 
-        self.logger.info('REQUEST', request.remote_addr, request.method, g.reqeust_cost,
-            request.path, request.headers.get('Content-Length', '0'), g.jsondata, 
+        self.logger.info('REQUEST', request.remote_addr, request.method, g.request_cost,
+            '%s?%s' % (request.path, request.query_string), request.headers.get('Content-Length', '0'), g.jsondata, 
             response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response, request.headers.get('User-Agent'))
 
         return response
