@@ -33,5 +33,12 @@ main:
     - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
     - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
 
+  ccp:
+    baseurl: https://sandboxapp.cloopen.com:8883/2013-12-26
+    account_sid: 8a48b5514f4fc588014f5db4b7de1405
+    account_token: d7924d01ff174aed9261c0fa5864de69
+    app_id: 8a48b5514f4fc588014f5db52e71140e
+    app_token: 0f0616c42d6036e920d2bdb6829c994f
+
 tasklets:
   - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '2', 'args': '1'}

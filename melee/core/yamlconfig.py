@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml
+import copy
 
 class YamlConfig(dict):
 
@@ -71,6 +72,14 @@ class YamlConfig(dict):
 
     def rds_url(self, index=0):
         return self.get('main').get('rds')[index]
+
+    @property
+    def ccp_client(self):
+        ccp_config = copy.deepcopy(self.get('main').get('ccp'))
+        from .sms import CCP
+        baseurl = ccp_config.pop('baseurl')
+        return CCP(baseurl, **ccp_config)
+
 
     
 
