@@ -41,7 +41,7 @@ class MeleeApp(object):
         return sig == signature.lower()
 
     def before_request(self):
-        self.logger.debug('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
+        self.logger.info('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
         g.rawdata = request.data
         g.jsondata = {}
         if request.endpoint is None:
@@ -89,9 +89,9 @@ class MeleeApp(object):
             #response.response = '%s(%s)' % (g.jsonpcallback, response.response)
         response.headers['Access-Control-Allow-Origin'] = '*'
 
-        self.logger.info('REQUEST', request.remote_addr, request.method, g.request_cost,
+        self.logger.debug('REQUEST', request.remote_addr, request.method, g.request_cost,
             '%s?%s' % (request.path, request.query_string), request.headers.get('Content-Length', '0'), g.jsondata, 
-            response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response, request.headers.get('User-Agent'))
+            response.status_code, code, str(response.headers.get('Content-Length', '0')))
 
         return response
 
