@@ -15,9 +15,11 @@ install_requires = [
     'iso8601',
     'blinker',
     'SQLAlchemy',
+    'pymysql',
     'mysql-python',
     'redis',
-    'docopt'
+    'docopt',
+    'pillow', # 用于画验证码
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']

@@ -34,7 +34,7 @@ def generate_verifycode_image(value=None, size=(200, 100), length=4):
             draw.line((random.randint(1, width), random.randint(1, height), random.randint(1, width), random.randint(1, height)), fill=(random.randint(1,255), random.randint(1,255), random.randint(1,255)))
     def draw_value(value):
         '''生成指定长度的验证码'''
-        font = ImageFont.truetype(font='./Monaco.ttf', size=50)
+        font = ImageFont.truetype(font='Monaco.ttf', size=50)
         font_width, font_height = font.getsize(value)
         delta_width = width-font_width
         delta_height = height-font_height
