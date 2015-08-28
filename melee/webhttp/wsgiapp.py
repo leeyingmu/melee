@@ -27,8 +27,22 @@ class MeleeApp(object):
         def helloworld():
             # return flask.make_response(('wellcome to melee!', 200, None))
             return 'wellcome to melee!'
-        
+
+        self._init()
+
         logger.info('STARTUP', 'meleeapp %s created' % config.servicename)
+
+    def _init(self):
+        # init the rds sql connections
+        self.rdsdb = None
+        if config.rds_binds:
+            app_config = {'SQLALCHEMY_BINDS': config.rds_binds}
+            for k, v in config.rds_pool_config.iteritems():
+                app_config['SQLALCHEMY_%s' % k.upper()] = v
+            self.app.config.update(app_config)
+            from flask.ext.sqlalchemy import SQLAlchemy
+            self.rdsdb = SQLAlchemy(self.app)
+            logger.info('init SQLALCHEMY rds', config.rds_binds.keys(), app_config)
 
     def verify_signature(self, sig_kv, signature, content, timestamp):
         key = config.sigkey(str(sig_kv))
@@ -159,12 +173,10 @@ class MeleeApp(object):
         tasklet_manager = TaskletManager.get(config.tasklets)
         tasklet_manager.startall()
 
+
     def initdb(self, arguments):
         self.logger.info(config.servicename, 'start intidb ...')
-        from ..core.initdb import InitDBModel
-        for sa in InitDBModel.__subclasses__():
-            sa.init_schema()
-            logger.info('init db schema: %s' % sa)
+        self.rdsdb.create_all()
         self.logger.info(config.servicename, 'end intidb')
 
     def run(self):
@@ -212,6 +224,6 @@ class MeleeApp(object):
             os.chdir(arguments['--chdir'])
 
 
-
+app = MeleeApp(__name__)
 
         

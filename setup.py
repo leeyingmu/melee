@@ -17,6 +17,7 @@ install_requires = [
     'SQLAlchemy',
     'pymysql',
     'mysql-python',
+    'flask-sqlalchemy',
     'redis',
     'docopt',
     'pillow', # 用于画验证码

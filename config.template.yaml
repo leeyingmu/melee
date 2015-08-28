@@ -29,9 +29,14 @@ main:
     instances:
       - redis://192.168.0.11:6379/0
       - redis://192.168.0.11:6379/0
+
   rds:
-    - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
-    - mysql://root:hclz1234@hclz.mysql.com:3306/cshop
+    pool_config:
+      pool_size: 10
+    binds:
+      order: mysql+pymysql://cshop:cshop1234@hclz.mysql.com:3306/cshop
+      cshop: mysql+pymysql://cshop:cshop1234@hclz.mysql.com:3306/cshop
+      dshop: mysql+pymysql://cshop:cshop1234@hclz.mysql.com:3306/cshop
 
   ccp:
     baseurl: https://sandboxapp.cloopen.com:8883/2013-12-26

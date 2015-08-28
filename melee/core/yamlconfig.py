@@ -80,6 +80,25 @@ class YamlConfig(dict):
         baseurl = ccp_config.pop('baseurl')
         return CCP(baseurl, **ccp_config)
 
+    @property
+    def rds_pool_config(self):
+        c = copy.deepcopy(self.get('main').get('rds', {}).get('pool_config', {}))
+        c['pool_size'] = c.get('pool_size') or 10
+        c['pool_timeout'] = c.get('pool_timeout') or 10
+        c['pool_recycle'] = c.get('pool_recycle') or 300
+        c['max_overflow'] = c.get('max_overflow') or 0
+        c['commit_on_teardown'] = c.get('commit_on_teardown', True)
+        if self.debugmode:
+            c['echo'] = True
+            c['echo_pool'] = True
+        c = {'SQLALCHEMY_%s' % k.upper() : v for k,v in c.iteritems()}
+        return c
+
+    @property
+    def rds_binds(self):
+        return self.get('main').get('rds', {}).get('binds') or {}
+
+
 
     
 
