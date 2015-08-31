@@ -79,7 +79,6 @@ class MeleeApp(object):
             except:
                 g.jsondata = {}
 
-        self.logger.debug('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict())
 
     def teardown_request(self, exc):
         if exc:
@@ -103,9 +102,9 @@ class MeleeApp(object):
             #response.response = '%s(%s)' % (g.jsonpcallback, response.response)
         response.headers['Access-Control-Allow-Origin'] = '*'
 
-        self.logger.debug('REQUEST', request.remote_addr, request.method, g.request_cost,
+        self.logger.info('REQUEST', request.remote_addr, request.method, g.request_cost,
             '%s?%s' % (request.path, request.query_string), request.headers.get('Content-Length', '0'), g.jsondata, 
-            response.status_code, code, str(response.headers.get('Content-Length', '0')))
+            response.status_code, code, response.response, str(response.headers.get('Content-Length', '0')))
 
         return response
 
