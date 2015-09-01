@@ -54,11 +54,11 @@ class CCP(object):
         req.add_data(json.dumps(data))
         rs = urllib.urlopen(req);
         if rs.code != 200:
-            raise RuntimeError('ccp send sms network error')
+            raise RuntimeError('短信验证码发送失败，请重试!')
         rs_data = rs.read()
         rs_data = json.loads(rs_data)
         if rs_data.get('statusCode') != '000000':
-            raise RuntimeError('ccp send sms network error: %s' % rs_data.get('statusMsg'))
+            raise RuntimeError(rs_data.get('statusMsg'))
 
         return verify_code
 

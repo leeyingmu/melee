@@ -116,7 +116,7 @@ class MeleeApp(object):
             g.response_code = error.code
             return jsonify(meta=error.info)
         else:
-            error = ServerError(description='%s: %s' % (error.__class__.__name__, unicode(error)))
+            error = ServerError(description=getattr(error, 'message', error.__class__.__name__))
             g.response_code = error.code
             return jsonify(meta=error.info)
 
