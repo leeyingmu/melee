@@ -27,21 +27,36 @@ class MeleeApp(object):
         def helloworld():
             # return flask.make_response(('wellcome to melee!', 200, None))
             return 'wellcome to melee!'
-        
+
+        self._init()
+
         logger.info('STARTUP', 'meleeapp %s created' % config.servicename)
+
+    def _init(self):
+        # init the rds sql connections
+        self.rdsdb = None
+        if config.rds_binds:
+            app_config = {'SQLALCHEMY_BINDS': config.rds_binds}
+            for k, v in config.rds_pool_config.iteritems():
+                app_config['SQLALCHEMY_%s' % k.upper()] = v
+            self.app.config.update(app_config)
+            from flask.ext.sqlalchemy import SQLAlchemy
+            self.rdsdb = SQLAlchemy(self.app)
+            logger.info('init SQLALCHEMY rds', config.rds_binds.keys(), app_config)
 
     def verify_signature(self, sig_kv, signature, content, timestamp):
         key = config.sigkey(str(sig_kv))
         if not key:
             return False
+        rawdata = '%s%s'% (content, timestamp)
         if isinstance(content, unicode):
-            rawdata = '%s%s'% (content, timestamp)
-        sig = hmac.new(key, rawdata.encode('utf-8'), hashlib.sha256).hexdigest().lower()
+            rawdata = rawdata.encode('utf-8')
+        sig = hmac.new(key, rawdata, hashlib.sha256).hexdigest().lower()
         return sig == signature.lower()
 
     def before_request(self):
-        self.logger.debug('REQUEST', request.path, request.endpoint, request.values.to_dict(), request.headers.get('User-Agent'))
-        g.rawdata = request.get_data(cache=True, parse_form_data=False)
+        self.logger.info('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
+        g.rawdata = request.data
         g.jsondata = {}
         if request.endpoint is None:
             return
@@ -51,10 +66,11 @@ class MeleeApp(object):
         signature = request.values.get('signature', '')
         sig_kv = request.values.get('sig_kv')
         timestamp = request.values.get('timestamp') or 0
+        g.jsonpcallback = request.values.get('callback')
 
         if content:
             if not timestamp or (time.time()*1000)-int(timestamp) > 86400000:
-                raise BadRequest(description='reqeust expired %s' % timestamp)
+                raise BadRequest(description='request expired %s' % timestamp)
 
             if not self.verify_signature(sig_kv, signature, content, timestamp):
                 raise SignatureError(description='Signature Not Correct.')
@@ -63,7 +79,6 @@ class MeleeApp(object):
             except:
                 g.jsondata = {}
 
-        self.logger.debug('REQUEST', request.path, request.endpoint, g.jsondata)
 
     def teardown_request(self, exc):
         if exc:
@@ -75,16 +90,21 @@ class MeleeApp(object):
         if response is None:
             return response
 
-        g.reqeust_cost = int(time.time()*1000) - g.startms
+        g.request_cost = int(time.time()*1000) - g.startms
 
         if getattr(g, 'response_code', None) is None:
             code = response.status_code
         else:
-            code = g.response_code  
+            code = g.response_code
 
-        self.logger.info('REQUEST', request.remote_addr, request.method, g.reqeust_cost,
-            request.path, request.headers.get('Content-Length', '0'), g.jsondata, 
-            response.status_code, code, str(response.headers.get('Content-Length', '0')), response.response, request.headers.get('User-Agent'))
+        # 支持jsonp, 解决ajax get 请求跨域问题
+        #if g.jsonpcallback:
+            #response.response = '%s(%s)' % (g.jsonpcallback, response.response)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+
+        self.logger.info('REQUEST', request.remote_addr, request.method, g.request_cost,
+            '%s?%s' % (request.path, request.query_string), request.headers.get('Content-Length', '0'), g.jsondata, 
+            response.status_code, code, response.response, str(response.headers.get('Content-Length', '0')))
 
         return response
 
@@ -96,7 +116,7 @@ class MeleeApp(object):
             g.response_code = error.code
             return jsonify(meta=error.info)
         else:
-            error = ServerError(description='%s: %s' % (error.__class__.__name__, unicode(error)))
+            error = ServerError(description=getattr(error, 'message', error.__class__.__name__))
             g.response_code = error.code
             return jsonify(meta=error.info)
 
@@ -122,7 +142,7 @@ class MeleeApp(object):
             else:
                 url_prefix = b.url_prefix
             self.app.register_blueprint(b, url_prefix=url_prefix)
-            self.logger.info('STARTUP', 'register blueprint: %s' % url_prefix)
+            self.logger.info('STARTUP', 'register blueprint %s: %s' % (b.name, url_prefix))
 
 
     def __call__(self, environ, start_response):
@@ -152,6 +172,12 @@ class MeleeApp(object):
         tasklet_manager = TaskletManager.get(config.tasklets)
         tasklet_manager.startall()
 
+
+    def initdb(self, arguments):
+        self.logger.info(config.servicename, 'start intidb ...')
+        self.rdsdb.create_all()
+        self.logger.info(config.servicename, 'end intidb')
+
     def run(self):
         usage = """MeleeApp Running in Command-Line
 
@@ -161,7 +187,7 @@ class MeleeApp(object):
         Usage:
           server.py runserver [--host=<host>] [--port=<port>]
           server.py runtasklet [--pythonpath=<pythonpath>] [--chdir=<chdir>]
-          server.py initdb
+          server.py initdb [--baiduyun]
 
         Options:
           -h --help                         Show this
@@ -178,10 +204,11 @@ class MeleeApp(object):
         self._process_cmd_options(arguments)
 
         if arguments['runserver']:
-
             return self.runserver(arguments)
         elif arguments['runtasklet']:
             return self.runtasklet(arguments)
+        elif arguments['initdb']:
+            return self.initdb(arguments)
         else:
             print(usage)
             raise RuntimeError('not supported command')
@@ -196,6 +223,6 @@ class MeleeApp(object):
             os.chdir(arguments['--chdir'])
 
 
-
+app = MeleeApp(__name__)
 
         

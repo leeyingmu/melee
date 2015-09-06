@@ -111,8 +111,6 @@ class TaskletManager(object):
             return None
         tasklets = []
         for c in tasklets_configs:
-            print '+++++++++++++'
-            print c
             number = int(c.get('number') or 1)
             for i in xrange(number):
                 tasklets.append(Tasklet(c.get('name'), c.get('module'), c.get('args')))
