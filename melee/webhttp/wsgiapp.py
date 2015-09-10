@@ -176,6 +176,10 @@ class MeleeApp(object):
     def initdb(self, arguments):
         self.logger.info(config.servicename, 'start intidb ...')
         self.rdsdb.create_all()
+        if config.baiduyun_ak:
+            from ..baiduyun.lbs import LBSTable
+            for c in LBSTable.__subclasses__():
+                self.logger.info('init baiduyun table', c.__tablename__, c.init_schema(config.baiduyun_ak))
         self.logger.info(config.servicename, 'end intidb')
 
     def run(self):
