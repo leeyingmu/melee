@@ -49,7 +49,10 @@ class YamlConfig(dict):
             import urlparse, redis
             for uri in self.get('main', {}).get('redis', {}).get('instances') or []:
                 p = urlparse.urlparse(uri)
-                self._redisintances.append(redis.Redis(p.hostname, port=p.port))
+                if p.username and p.password:
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password)))
+                else:
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port))
         sharding_threshold = int(self.get('main', {}).get('redis', {}).get('sharding_threshold'))
         return self._redisintances[int(shardingid)/sharding_threshold] if self._redisintances else None
 
