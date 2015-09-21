@@ -60,6 +60,9 @@ class RedisHashModel(BaseRedisModel):
         self.client.hmset(self.key, update_data)
         self.clear_cache()
 
+    def delete(self):
+        self.client.delete(self.key)
+
     def clear_cache(self):
         self.__origindata = None
 
