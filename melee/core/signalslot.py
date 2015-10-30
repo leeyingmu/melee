@@ -30,7 +30,24 @@ Using Example Code:
     [(<function func1 at 0x10da2aaa0>, 'func1 result send1'), (<function func3 at 0x10da2ac08>, 'func3 result send1')]
 """
 
+import sys, traceback
 from blinker import signal
+from .env import logger
+
+
+class BaseSignal(object):
+    '''the base signal class for all business lib signals
+       the main purpose is to catch the exception (for default)
+    '''
+    def send(self, sig, *args, **kwargs):
+        try:
+            logger.info('signal send', sig.name, args, kwargs)
+            sig.send(*args, **kwargs)
+        except:
+            logger.error('EXCEPTION', exc_info=sys.exc_info())
+            logger.error('TRACEBACK', traceback.format_exc())
+            if not kwargs.get('catch_except', True):
+                raise
 
 def signalslot(name):
     def wrapped(func):
