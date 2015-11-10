@@ -96,7 +96,7 @@ class RDSLibModel(object):
 
     def save(self):
         logger.debug('assets', 'update before', self.__class__.__name__, self.origin_data, self.changed_data, self.to_dict())
-        if not self.changed_data:
+        if not self.changed_data and self.exists:
             logger.info('assets', 'update', 'nothing changed', self.origin_data, self.changed_data)
             return
         try:
