@@ -63,4 +63,6 @@ class ServerError(MeleeHTTPException):
 class NeedRetry(MeleeHTTPException):
     code = 500
 
+class NotServicedArea(BadRequest):
+    pass
 
