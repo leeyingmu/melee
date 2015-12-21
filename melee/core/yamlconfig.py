@@ -57,6 +57,16 @@ class YamlConfig(dict):
         return self._redisintances[int(shardingid)/sharding_threshold] if self._redisintances else None
 
     @property
+    def mongodb_clients(self):
+        if not getattr(self, '_mongodbinstances', None):
+            self._mongodbinstances = []
+            client_options = self.get('main', {}).get('mongodb', {}).get('client_options') or {}
+            for uri in self.get('main', {}).get('mongodb', {}).get('instances') or []:
+                from pymongo import MongoClient
+                self._mongodbinstances.append(MongoClient(uri, **client_options))
+        return self._mongodbinstances
+
+    @property
     def aliyun_key(self):
         keys = {
             'regionid': self.get('main').get('aliyun').get('regionid') or 'cn-hangzhou.aliyuncs.com',

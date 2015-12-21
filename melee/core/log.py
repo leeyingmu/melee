@@ -71,7 +71,7 @@ class MeleeLogging(object):
     def getLogger(self, name):
         """get one logger which shares one instance in the same process.
         """
-        name = name or self.rootname
+        name = '%s.%s' % (self.rootname, name) if name else self.rootname
         if name not in self.loggers:
             self.loggers[name] = self.createLogger(name)
         return self.loggers.get(name)

@@ -175,11 +175,24 @@ class MeleeApp(object):
 
     def initdb(self, arguments):
         self.logger.info(config.servicename, 'start intidb ...')
+        # init rds db
         self.rdsdb.create_all()
+        # init baiduyun lbs db
         if config.baiduyun_ak:
             from ..baiduyun.lbs import LBSTable
             for c in LBSTable.__subclasses__():
                 self.logger.info('init baiduyun table', c.__tablename__, c.init_schema(config.baiduyun_ak))
+        # init mongodb multi clients index model db
+        if config.mongodb_clients:
+            from ..nosql.mongodb import BaseMongoMultiClientIndexModel
+            def __createindex(__model):
+                if __model.__subclasses__():
+                    for __submodel in __model.__subclasses__():
+                        __createindex(__submodel)
+                else:
+                    __model.create_index()
+            __createindex(BaseMongoMultiClientIndexModel)
+
         self.logger.info(config.servicename, 'end intidb')
 
     def run(self):
