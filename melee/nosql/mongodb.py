@@ -34,7 +34,7 @@ class BaseMongoMultiClientIndexModel(object):
 
     @classmethod
     def create_index(cls):
-        cls.initdb()
+        # cls.initdb()
         index_names = [i.document.get('name') for i in cls.__indexes__]
         for c in cls.__collections__:
             c.create_indexes(cls.__indexes__)
@@ -51,7 +51,7 @@ class BaseMongoMultiClientIndexModel(object):
 
 
     def __init__(self, doc=None, **kwargs):
-        self.initdb()
+        # self.initdb()
         for k in ['_id', 'ut']:
             if k in self.__attrs__:
                 continue
@@ -86,13 +86,15 @@ class BaseMongoMultiClientIndexModel(object):
             return super(BaseMongoMultiClientIndexModel, self).__getattr__(name)
         return self._doc.get(name)
 
-    def to_dict(self, extra_keys=None): 
+    def to_dict(self, extra_keys=None, exclude_keys=None): 
         d = copy.deepcopy(self._doc)
         for k in extra_keys or []:
             v = getattr(self, k)
             if isinstance(v, list) or isinstance(v, dict):
                 v = copy.deepcopy(v)
             d[k] = v
+        for k  in exclude_keys or []:
+            d.pop(k, None)
         return d
 
     def save(self, upsert=True):
@@ -200,20 +202,6 @@ class BaseMongoMultiClientIndexModel(object):
         R = 6371000
         c = math.sin(p1[1])*math.sin(p2[1])*math.cos(p1[0]-p2[0]) + math.cos(p1[1])*math.cos(p2[1])
         return R*math.acos(c)*math.pi/180
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -77,11 +77,11 @@ class YamlConfig(dict):
 
     @property
     def aliyun_oss(self):
-        return self.get('main').get('aliyun').get('oss')
+        return self.get('main').get('aliyun', {}).get('oss')
 
     @property
     def baiduyun_ak(self):
-        return self.get('main').get('baiduyun').get('ak')
+        return self.get('main').get('baiduyun', {}).get('ak')
 
     def rds_url(self, index=0):
         return self.get('main').get('rds')[index]
