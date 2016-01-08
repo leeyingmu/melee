@@ -38,11 +38,12 @@ class YamlConfig(dict):
 
     @property
     def redis_main(self):
-        return self.redis_shard(0)
+        '''废弃的'''
+        return self.redis_client(0)
 
-    def redis_shard(self, shardingid):
+    def redis_client(self, shard_index):
         '''
-        按照指定的分片用的数据shardingid，根据配置的分片阈值sharding_threshold进行分片
+        按照指定的分片索引shard_index获取redis实例
         '''
         if not getattr(self, '_redisintances', None):
             self._redisintances = []
@@ -53,8 +54,7 @@ class YamlConfig(dict):
                     self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password)))
                 else:
                     self._redisintances.append(redis.Redis(p.hostname, port=p.port))
-        sharding_threshold = int(self.get('main', {}).get('redis', {}).get('sharding_threshold'))
-        return self._redisintances[int(shardingid)/sharding_threshold] if self._redisintances else None
+        return self._redisintances[int(shard_index)]
 
     @property
     def mongodb_clients(self):
