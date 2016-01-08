@@ -38,7 +38,7 @@ class YamlConfig(dict):
 
     @property
     def redis_main(self):
-        '''废弃的'''
+        '''全局redis'''
         return self.redis_client(0)
 
     def redis_client(self, shard_index):
