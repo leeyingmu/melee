@@ -32,6 +32,8 @@ class RedisHashModel(BaseRedisModel):
     
     # 不让用户随便看到的属性
     __notvisible_attrs__ = []
+    # 所有可修改字段，为空的话不限制
+    __attrs__ = []
 
     @property
     def _origindata(self):
@@ -76,6 +78,10 @@ class RedisHashModel(BaseRedisModel):
         return self._origindata is not None and len(self._origindata) > 0
 
     def update(self, update_data=None, incr=None, expire=None):
+        update_data = update_data or {}
+        update_data = {k:v for k,v in update_data.iteritems() if not self.__attrs__ or k in self.__attrs__}
+        incr = incr or {}
+        incr = {k:v for k,v in incr.iteritems() if not self.__attrs__ or k in self.__attrs__}
         if update_data:
             self.client.hmset(self.key, update_data)
         if incr:
