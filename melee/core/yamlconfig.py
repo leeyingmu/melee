@@ -32,6 +32,28 @@ class YamlConfig(dict):
     def tasklets(self):
         return self.get('tasklets')
 
+    def remoteconfig(self, key):
+        '''
+        :param key: <string> the config file oss object_key
+        return the melee.aliyun.ossmode.OSS2ConfigObject instance
+        '''
+        if not getattr(self, '__remoteconfigs', None):
+            from ..aliyun.ossmodel import OSS2ConfigObject
+            remoteconfig = self.get('main', {}).get('remoteconfig', {})
+            '''
+            endpoint: oss-cn-hangzhou.aliyuncs.com
+            access_key_id: YWCdSM9iBtjhcRD4
+            access_key_secret: LbenstyVqSmr7p6z6r8GuiyYCIFNmJ
+            bucket_name: hclzconfigdev
+            filekeys:
+                - servers/product2_dev.yaml
+                - servers/products_dev.yaml
+            '''
+            self.__remoteconfigs = {}
+            for key in remoteconfig.get('filekeys') or []:
+                self.__remoteconfigs[key] = OSS2ConfigObject(key, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
+        return yaml.load(self.__remoteconfigs[key].data)
+
     @property
     def redis_keyprefix(self):
         return self.get('main', {}).get('redis', {}).get('key_prefix')
