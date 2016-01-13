@@ -56,6 +56,7 @@ class MeleeApp(object):
 
     def before_request(self):
         self.logger.info('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
+        g.endpoint = request.endpoint.split('.')[-1]
         g.rawdata = request.data
         g.jsondata = {}
         if request.endpoint is None:
