@@ -38,7 +38,7 @@ class BaseMongoMultiClientIndexModel(object):
         index_names = [i.document.get('name') for i in cls.__indexes__]
         for c in cls.__collections__:
             c.create_indexes(cls.__indexes__)
-            cls.logger.info('create_indexs', 'in client: %s' % cls.__collections__.index(c), index_names)
+            cls.logger.info(cls.__name__, 'create_indexs', 'in client: %s' % cls.__collections__.index(c), index_names)
 
     @classmethod
     def initdb(cls):
