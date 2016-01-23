@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml
+import simplejson as json
 import copy
 
 class YamlConfig(dict):
@@ -37,7 +38,7 @@ class YamlConfig(dict):
         :param key: <string> the config file oss object_key
         return the melee.aliyun.ossmode.OSS2ConfigObject instance
         '''
-        if not getattr(self, '__remoteconfigs', None):
+        if not getattr(self, '_remoteconfigs', None):
             from ..aliyun.ossmodel import OSS2ConfigObject
             remoteconfig = self.get('main', {}).get('remoteconfig', {})
             '''
@@ -49,10 +50,16 @@ class YamlConfig(dict):
                 - servers/product2_dev.yaml
                 - servers/products_dev.yaml
             '''
-            self.__remoteconfigs = {}
+            self._remoteconfigs = {}
             for key in remoteconfig.get('filekeys') or []:
-                self.__remoteconfigs[key] = OSS2ConfigObject(key, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
-        return yaml.load(self.__remoteconfigs[key].data)
+                self._remoteconfigs[key] = OSS2ConfigObject(key, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
+        data = self._remoteconfigs[key].get(refresh=True)
+        if key.endswith('json'):
+            return json.loads(data)
+        elif key.endswith('yaml'):
+            return yaml.load(data)
+        else:
+            raise RuntimeError('not supported remote config suffix!')
 
     @property
     def redis_keyprefix(self):

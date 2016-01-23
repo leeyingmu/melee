@@ -50,16 +50,15 @@ class OSSObject(object):
 
     @property
     def data(self):
-        # if getattr(self, '_data', None) is None:
-        #     rs = self.client.get_object(self.bucket, self.key)
-        #     if rs.status != 200:
-        #         raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
-        #     self._data = rs.read()
-        # return self._data
-        rs = self.client.get_object(self.bucket, self.key)
-        if rs.status != 200:
-            raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
-        return rs.read()
+        return self.get_data()
+
+    def get_data(self, refresh=False):
+        if refresh or getattr(self, '_data', None) is None:
+            rs = self.client.get_object(self.bucket, self.key)
+            if rs.status != 200:
+                raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
+            sell._data = rs.read()
+        return self._data
 
     def update(self, data):
         pass
@@ -78,27 +77,21 @@ class BaseOSS2Object(object):
         self.auth = oss2.Auth(self.access_key_id, self.access_key_secret)
         self.bucket = oss2.Bucket(self.auth, self.endpoint, self.bucket_name)
 
-        #缓存数据，两级缓存作用是保证在刷新缓存时如果出现网络失败，不会清空之前的缓存
-        #只有当__data1加载成功时，才会赋值给__data2
-        self.__data1 = None #读取缓存
-        self.__data2 = None #加载缓存
-
     @property
     def data(self): return self.get()
 
-    def get(self):
-        # if not getattr(self, '__data1', None):
-        #     try: 
-        #         self.__data1 = self.bucket.get_object(self.key).read()
-        #     except:
-        #         logger.errorZ('oss object load failed', self.bucket_name, self.key)
-        #         logger.error('EXCEPTION', exc_info=sys.exc_info())
-        #         logger.error('TRACEBACK', traceback.format_exc())
-        #     if self.__data1: 
-        #         self.__data2 = self.__data1
-        # return self.__data2
-        return self.bucket.get_object(self.key).read()
-
+    def get(self, refresh=False):
+        if refresh or not getattr(self, '_data', None):
+            d = None
+            try: 
+                d = self.bucket.get_object(self.key).read()
+            except:
+                logger.error('oss object load failed', self.bucket_name, self.key)
+                logger.error('EXCEPTION', exc_info=sys.exc_info())
+                logger.error('TRACEBACK', traceback.format_exc())
+            if d: 
+                self._data = d
+        return self._data
 
 
 class OSS2ConfigObject(BaseOSS2Object):
