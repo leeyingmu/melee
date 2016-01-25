@@ -57,7 +57,7 @@ class OSSObject(object):
             rs = self.client.get_object(self.bucket, self.key)
             if rs.status != 200:
                 raise RuntimeError('failed to get oss file %s/%s, %s, %s' % (self.bucket, self.key, rs.status, rs.read()))
-            sell._data = rs.read()
+            self._data = rs.read()
         return self._data
 
     def update(self, data):
