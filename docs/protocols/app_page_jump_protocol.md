@@ -17,33 +17,36 @@
 
 - 角色关系
 
-	```
-	调用页面（CallPage）    ---->   PageRoute    ---->    被调用页面（CalledPage）
-	                                                       |
-	                                    <----（可选返回）----|
-	```
+    ```
+    调用页面（CallPage）    ---->   PageRoute    ---->    被调用页面（CalledPage）
+                                                           |
+                                        <----（可选返回）----|
+    ```
 
 - 角色定义
 
-	```
-	   页面：一个可刷新的区域
-	1. 调用页面（CallPage）：调用来源
-	2. 被调用页面（CalledPage）：被调用页面，具有以下属性
-	       pageuri: [string]页面资源定位符
-	       pagetype: [string]页面类型，在各个平台的定义为：
-	           h5：webview
-	           android：activity, fragment, webview
-	           ios：viewcontroler, webview
-	       pageparams: [string]该页面被刷新时需要的参数，格式是`字典类型json`字符串，有以下公共通用参数：
-	           callsource: [string]具体格式待完善，待确定
-	           needreturn: [bool]是否需要左上角的返回按钮，待确定
-	           ...
-	           ...
-	3. PageRoute：页面跳转路由器，根据pageuri,pagetype确定被调用页面，带着pageparams参数启动调用。
-	
-	```
+    ```
+       页面：一个可刷新的区域
+    1. 调用页面（CallPage）：调用来源
+    2. 被调用页面（CalledPage）：被调用页面，具有以下属性
+           pageid: [string]页面资源定位符，
+               android例子：wode_shezhi
+                           laidian
+           pagetype: [string]页面类型，在各个平台的定义为：
+               h5：webview
+               android：activity, fragment, webview
+               ios：viewcontroler, webview
+           pageparams: [string]该页面被刷新时需要的参数，格式是`字典类型json`字符串，有以下公共通用参数：
+               callsource: [string]具体格式待完善，待确定
+               needreturn: [bool]是否需要左上角的返回按钮，待确定
+               ...
+               ...
+    3. PageRoute：页面跳转路由器，根据pageid,pagetype确定被调用页面，带着pageparams参数启动调用。
+    
+    ```
 
 #### 4. 场景举例（只列举有不同跳转来源的场景）
 
-- 首页广告位跳转到不同页面，每个广告点击后需要的跳转都可能不一样。广告信息一般都由服务器返回，通过返回参数pageaction={pageuri:'', pagetype:'', pageparams:''}实现服务器对客户端跳转的控制。
-- 系统消息，系统消息类型很多。如某人关注了你，点击消息后跳转到该人主页；如官方发布了活动，点击后跳转到活动主页；如您的订单已被确认发货，点击后跳转到该订单详情等。通过每条消息返回的pageaction={pageuri:'', pagetype:'', pageparams:''}实现点击消息跳转的控制。
+- 首页广告位跳转到不同页面，每个广告点击后需要的跳转都可能不一样。广告信息一般都由服务器返回，通过返回参数pageaction={pageid:'', pagetype:'', pageparams:''}实现服务器对客户端跳转的控制。
+- 系统消息，系统消息类型很多。如某人关注了你，点击消息后跳转到该人主页；如官方发布了活动，点击后跳转到活动主页；如您的订单已被确认发货，点击后跳转到该订单详情等。通过每条消息返回的pageaction={pageid:'', pagetype:'', pageparams:''}实现点击消息跳转的控制。
+
