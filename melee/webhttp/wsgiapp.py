@@ -80,6 +80,9 @@ class MeleeApp(object):
             except:
                 g.jsondata = {}
 
+            if config.appids and g.jsondata.get('appid') not in config.appids:
+                raise BadRequest(description='Reqeust appid error')
+
 
     def teardown_request(self, exc):
         if exc:

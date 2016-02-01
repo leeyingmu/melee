@@ -13,12 +13,11 @@ class YamlConfig(dict):
             self.update(yaml.load(f) or {})
 
     @property
-    def servicename(self):
-        return self.get('main', {}).get('servicename') or 'template'
-
+    def servicename(self): return self.get('main', {}).get('servicename') or 'template'
     @property
-    def debugmode(self):
-        return 'true' == str(self.get('main').get('debugmode')).lower()
+    def appids(self): return self.get('main', {}).get('appids') or []
+    @property
+    def debugmode(self): return 'true' == str(self.get('main').get('debugmode')).lower()
 
     @property
     def log(self):
@@ -62,8 +61,12 @@ class YamlConfig(dict):
             raise RuntimeError('not supported remote config suffix!')
 
     @property
-    def redis_keyprefix(self):
-        return self.get('main', {}).get('redis', {}).get('key_prefix')
+    def aliyun_oss(self): return self.get('main').get('aliyun', {}).get('oss')
+    @property
+    def imageoss(self): return self.get('main', {}).get('imageoss') or {}
+
+    @property
+    def redis_keyprefix(self): return self.get('main', {}).get('redis', {}).get('key_prefix')
 
     @property
     def redis_main(self):
@@ -105,12 +108,7 @@ class YamlConfig(dict):
         return keys
 
     @property
-    def aliyun_oss(self):
-        return self.get('main').get('aliyun', {}).get('oss')
-
-    @property
-    def baiduyun_ak(self):
-        return self.get('main').get('baiduyun', {}).get('ak')
+    def baiduyun_ak(self): return self.get('main').get('baiduyun', {}).get('ak')
 
     def rds_url(self, index=0):
         return self.get('main').get('rds')[index]
