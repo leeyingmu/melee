@@ -17,7 +17,7 @@ class DemoImg(OSS2ImgObject):
 class TestBase(unittest.TestCase):
 
     def test(self):
-        f = open('tests/testimageoss.png', 'rb')
+        f = open('/Users/lifachang/sanji.jpg', 'rb')
         path = 'testcase'
         img = DemoImg.upload(f, path=path, filename=f.name.split('/')[-1])
         url = img.url(style='teststyle')

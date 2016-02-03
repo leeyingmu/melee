@@ -34,8 +34,14 @@ def format_path(*args):
     parts = []
     for arg in (str(i) for i in args if i is not None):
         if not arg: continue
-        parts.extend([p for p in arg.split('/') if p])
+        parts.extend([p for p in arg.split(os.path.sep) if p])
     return os.path.join(*parts)
+
+def format_real_filename(filename):
+    '''从带有路径的文件名中找出真正的文件名'''
+    if not filename: return filename
+    parts = filename.split(os.path.sep)
+    return parts[-1]
 
 
 
