@@ -25,6 +25,16 @@ def past_seconds(dt):
 def uuid1():
     return uuid.uuid1().hex
 
+def hash(hashname, src, lower=True):
+    import hashlib
+    hmethod = getattr(hashlib, hashname)
+    if not hmethod or not callable(hmethod):
+        raise RuntimeError('not supported hash method')
+    return hmethod(src).hexdigest().lower() if lower else hmethod(src).hexdigest().upper()
+
+def hmachash(hashname, src, key):
+    pass
+
 def format_path(*args):
     '''将多段文件路径格式化拼接成一个路径
        使用方法：

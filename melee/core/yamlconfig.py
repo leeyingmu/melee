@@ -82,11 +82,33 @@ class YamlConfig(dict):
             import urlparse, redis
             for uri in self.get('main', {}).get('redis', {}).get('instances') or []:
                 p = urlparse.urlparse(uri)
+                db = 0
+                try:
+                    db = int(p.path[1:])
+                except:
+                    pass
                 if p.username and p.password:
-                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password)))
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password), db=db))
                 else:
-                    self._redisintances.append(redis.Redis(p.hostname, port=p.port))
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, db=db))
         return self._redisintances[int(shard_index)]
+
+    def redis_cache(self, bind):
+        if not getattr(self, '_rediscaches', None):
+            self._rediscaches = {}
+            import urlparse, redis
+            for b, uri in self.get('main', {}).get('rediscache', {}).iteritems():
+                p = urlparse.urlparse(uri)
+                db = 0
+                try:
+                    db = int(p.path[1:])
+                except:
+                    pass
+                if p.username and p.password:
+                    self._rediscaches[b] = redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password), db=db)
+                else:
+                    self._rediscaches[b] = redis.Redis(p.hostname, port=p.port, db=db)
+        return self._rediscaches[bind]
 
     @property
     def mongodb_clients(self):
