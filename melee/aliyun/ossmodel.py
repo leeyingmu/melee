@@ -91,8 +91,7 @@ class BaseOSS2Object(object):
                 logger.error('oss object load failed', self.bucket_name, self.key)
                 logger.error('EXCEPTION', exc_info=sys.exc_info())
                 logger.error('TRACEBACK', traceback.format_exc())
-            if d: 
-                self._data = d
+            self._data = d
         return self._data
 
     def put_object(self, data, **kwargs):

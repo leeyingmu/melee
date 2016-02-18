@@ -55,7 +55,10 @@ class RDSLibModel(object):
         if name not in self.__attrs__:
             # 非数据库字段
             # 等价于 object.__getattr__(self, name)
-            return super(RDSLibModel, self).__getattr__(name)
+            try:
+                return super(RDSLibModel, self).__getattr__(name)
+            except (AttributeError):
+                return None
         return getattr(self.model, name)
 
     def __setattr__(self, name, value):
@@ -98,6 +101,7 @@ class RDSLibModel(object):
                 data[k] = utils.format_time(getattr(self, k))
         for k in extra_keys or []:
             v = getattr(self, k)
+            if not v: continue
             if isinstance(v, list) or isinstance(v, dict):
                 v = copy.deepcopy(v)
             data[k] = v
