@@ -50,8 +50,8 @@ class YamlConfig(dict):
                 - servers/products_dev.yaml
             '''
             self._remoteconfigs = {}
-            for key in remoteconfig.get('filekeys') or []:
-                self._remoteconfigs[key] = OSS2ConfigObject(key, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
+            for k in remoteconfig.get('filekeys') or []:
+                self._remoteconfigs[k] = OSS2ConfigObject(k, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
         data = self._remoteconfigs[key].get(refresh=True)
         if key.endswith('json'):
             return json.loads(data)
