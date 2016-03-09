@@ -156,11 +156,8 @@ class OSS2ImgObject(BaseOSS2Object):
         '''将一个url解析成对象'''
         p = urlparse.urlparse(url)
         path = utils.format_path(p.path.split(cls.__action_separator__)[0])
-        print path
         path = path.replace(cls.__base_path__, '', 1)
-        print path
         parts = utils.format_path(path).split('/')
-        print parts
         path = utils.format_path(*parts[0:len(parts)-1]) if len(parts) > 1 else None
         filename = parts[-1]
         return cls(path=path, filename=filename)

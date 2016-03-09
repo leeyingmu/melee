@@ -51,6 +51,9 @@ class RedisHashModel(BaseRedisModel):
             info.pop(k, None)
         return info
 
+    def apiinfo(self):
+        '''已经废弃，在老的cshop和dshop中还在使用'''
+        return self.to_dict()
 
     def to_dict(self, extra_keys=None, exclude_keys=None):
         '''数据转化为dict结构
