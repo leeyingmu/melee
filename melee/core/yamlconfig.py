@@ -138,9 +138,13 @@ class YamlConfig(dict):
     @property
     def ccp_client(self):
         ccp_config = copy.deepcopy(self.get('main').get('ccp'))
-        from .sms import CCP
-        baseurl = ccp_config.pop('baseurl')
-        return CCP(baseurl, **ccp_config)
+        if not ccp_config:
+            raise RuntimeError('ccp not configured')
+        from .sms import CCPSMS
+        return CCPSMS(**ccp_config)
+
+    @property
+    def sms_config(self): return copy.deepcopy(self.get('main').get('sms') or [])
 
     @property
     def rds_pool_config(self):
