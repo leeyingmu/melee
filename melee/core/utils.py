@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, datetime, uuid, os
+import time, datetime, uuid, os, math
 
 def format_time(dt, pattern=None):
     ''':param dt: instance of datetime.datetime'''
@@ -54,7 +54,11 @@ def format_real_filename(filename):
     return parts[-1]
 
 
-
+def distance(cls, p1, p2):
+    '''计算两点间距离，单位为米，p1和p2是两个经度度表示的点，格式都为数字数组[经度,纬度]'''
+    R = 6371000
+    c = math.sin(p1[1])*math.sin(p2[1])*math.cos(p1[0]-p2[0]) + math.cos(p1[1])*math.cos(p2[1])
+    return R*math.acos(c)*math.pi/180
 
 
 
