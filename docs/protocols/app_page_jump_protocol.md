@@ -32,10 +32,9 @@
            pageid: [string]页面资源定位符，
                android例子：wode_shezhi
                            laidian
-           pagetype: [string]页面类型，在各个平台的定义为：
-               h5：webview
-               android：activity, fragment, webview
-               ios：viewcontroler, webview
+           pagetype: [string]页面类型：
+               webview: 网页
+               native: 原生
            pageparams: [string]该页面被刷新时需要的参数，格式是`字典类型json`字符串，有以下公共通用参数：
                callsource: [string]具体格式待完善，待确定
                needreturn: [bool]是否需要左上角的返回按钮，待确定
