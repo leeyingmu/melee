@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import yaml
+import simplejson as json
 import copy
 
 class YamlConfig(dict):
@@ -12,12 +13,11 @@ class YamlConfig(dict):
             self.update(yaml.load(f) or {})
 
     @property
-    def servicename(self):
-        return self.get('main', {}).get('servicename') or 'template'
-
+    def servicename(self): return self.get('main', {}).get('servicename') or 'template'
     @property
-    def debugmode(self):
-        return 'true' == str(self.get('main').get('debugmode')).lower()
+    def appids(self): return self.get('main', {}).get('appids') or []
+    @property
+    def debugmode(self): return 'true' == str(self.get('main').get('debugmode')).lower()
 
     @property
     def log(self):
@@ -32,29 +32,93 @@ class YamlConfig(dict):
     def tasklets(self):
         return self.get('tasklets')
 
+    def remoteconfig(self, key):
+        '''
+        :param key: <string> the config file oss object_key
+        return the melee.aliyun.ossmode.OSS2ConfigObject instance
+        '''
+        if not getattr(self, '_remoteconfigs', None):
+            from ..aliyun.ossmodel import OSS2ConfigObject
+            remoteconfig = self.get('main', {}).get('remoteconfig', {})
+            '''
+            endpoint: oss-cn-hangzhou.aliyuncs.com
+            access_key_id: YWCdSM9iBtjhcRD4
+            access_key_secret: LbenstyVqSmr7p6z6r8GuiyYCIFNmJ
+            bucket_name: hclzconfigdev
+            filekeys:
+                - servers/product2_dev.yaml
+                - servers/products_dev.yaml
+            '''
+            self._remoteconfigs = {}
+            for k in remoteconfig.get('filekeys') or []:
+                self._remoteconfigs[k] = OSS2ConfigObject(k, remoteconfig.get('bucket_name'), remoteconfig.get('endpoint'), remoteconfig.get('access_key_id'), remoteconfig.get('access_key_secret'))
+        data = self._remoteconfigs[key].get(refresh=True)
+        if key.endswith('json'):
+            return json.loads(data)
+        elif key.endswith('yaml'):
+            return yaml.load(data)
+        else:
+            raise RuntimeError('not supported remote config suffix!')
+
     @property
-    def redis_keyprefix(self):
-        return self.get('main', {}).get('redis', {}).get('key_prefix')
+    def aliyun_oss(self): return self.get('main').get('aliyun', {}).get('oss')
+    @property
+    def imageoss(self): return self.get('main', {}).get('imageoss') or {}
+
+    @property
+    def redis_keyprefix(self): return self.get('main', {}).get('redis', {}).get('key_prefix')
 
     @property
     def redis_main(self):
-        return self.redis_shard(0)
+        '''全局redis'''
+        return self.redis_client(0)
 
-    def redis_shard(self, shardingid):
+    def redis_client(self, shard_index):
         '''
-        按照指定的分片用的数据shardingid，根据配置的分片阈值sharding_threshold进行分片
+        按照指定的分片索引shard_index获取redis实例
         '''
         if not getattr(self, '_redisintances', None):
             self._redisintances = []
             import urlparse, redis
             for uri in self.get('main', {}).get('redis', {}).get('instances') or []:
                 p = urlparse.urlparse(uri)
+                db = 0
+                try:
+                    db = int(p.path[1:])
+                except:
+                    pass
                 if p.username and p.password:
-                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password)))
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password), db=db))
                 else:
-                    self._redisintances.append(redis.Redis(p.hostname, port=p.port))
-        sharding_threshold = int(self.get('main', {}).get('redis', {}).get('sharding_threshold'))
-        return self._redisintances[int(shardingid)/sharding_threshold] if self._redisintances else None
+                    self._redisintances.append(redis.Redis(p.hostname, port=p.port, db=db))
+        return self._redisintances[int(shard_index)]
+
+    def redis_cache(self, bind):
+        if not getattr(self, '_rediscaches', None):
+            self._rediscaches = {}
+            import urlparse, redis
+            for b, uri in self.get('main', {}).get('rediscache', {}).iteritems():
+                p = urlparse.urlparse(uri)
+                db = 0
+                try:
+                    db = int(p.path[1:])
+                except:
+                    pass
+                if p.username and p.password:
+                    self._rediscaches[b] = redis.Redis(p.hostname, port=p.port, password='%s:%s'%(p.username, p.password), db=db)
+                else:
+                    self._rediscaches[b] = redis.Redis(p.hostname, port=p.port, db=db)
+        return self._rediscaches[bind]
+
+    @property
+    def mongodb_clients(self):
+        if not getattr(self, '_mongodbinstances', None):
+            self._mongodbinstances = []
+            client_options = self.get('main', {}).get('mongodb', {}).get('client_options') or {}
+            for uri in self.get('main', {}).get('mongodb', {}).get('instances') or []:
+                from pymongo import MongoClient
+                self._mongodbinstances.append(MongoClient(uri, **client_options))
+        return self._mongodbinstances
 
     @property
     def aliyun_key(self):
@@ -66,12 +130,7 @@ class YamlConfig(dict):
         return keys
 
     @property
-    def aliyun_oss(self):
-        return self.get('main').get('aliyun').get('oss')
-
-    @property
-    def baiduyun_ak(self):
-        return self.get('main').get('baiduyun').get('ak')
+    def baiduyun_ak(self): return self.get('main').get('baiduyun', {}).get('ak')
 
     def rds_url(self, index=0):
         return self.get('main').get('rds')[index]
@@ -79,9 +138,13 @@ class YamlConfig(dict):
     @property
     def ccp_client(self):
         ccp_config = copy.deepcopy(self.get('main').get('ccp'))
-        from .sms import CCP
-        baseurl = ccp_config.pop('baseurl')
-        return CCP(baseurl, **ccp_config)
+        if not ccp_config:
+            raise RuntimeError('ccp not configured')
+        from .sms import CCPSMS
+        return CCPSMS(**ccp_config)
+
+    @property
+    def sms_config(self): return copy.deepcopy(self.get('main').get('sms') or [])
 
     @property
     def rds_pool_config(self):

@@ -28,10 +28,8 @@ def dump_string(data):
         return data
 
 def dump_binop(left, right):
-    if not left:
-        left = '%s'%(left)
-    if not right:
-        right = '%s'%(right)
+    left = '%s'%(left)
+    right = '%s'%(right)
     right = escape_string(right)
     if '|' in left or '=' in left or '|' in right or left[0] == '$':
         return '$%d,%d$ %s=%s' % (len(left), len(right), left, right)
@@ -56,10 +54,10 @@ def dumps(msgs):
     for msg in msgs:
         if msg is None:
             s.append('None')
-        elif isinstance(s, bool):
-            s.append(str(s))
-        elif isinstance(s, (int, float)):
-            s.append(repr(s))
+        elif isinstance(msg, bool):
+            s.append(str(msg))
+        elif isinstance(msg, (int, float)):
+            s.append(repr(msg))
         elif isinstance(msg, (str, unicode)):
             s.append(dump_string(msg))
         elif isinstance(msg, tuple):

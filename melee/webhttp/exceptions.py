@@ -3,9 +3,9 @@
 """
 All exceptions definitions used in apps based melee framework.
 Example:
-    >>>error = BadReqeust(description='username must be provided', extra={'error_type': 'param_error'})
+    >>>error = BadRequest(description='username must be provided', extra={'error_type': 'param_error'})
     >>>error.info
-    {'code': 400, 'message': 'BadReqeust', 'description': 'username must be provided', 'error_type': 'param_error'}
+    {'code': 400, 'message': 'BadRequest', 'description': 'username must be provided', 'error_type': 'param_error'}
 If the client want to know the detail error information, you can define them in the extra.
 
 """
@@ -50,19 +50,19 @@ class MeleeHTTPException(HTTPException):
         return jsonify(self.info)
 
 
-
-class BadRequest(MeleeHTTPException):
-    code = 400
-
-class SignatureError(BadRequest):
-    pass
-
 class ServerError(MeleeHTTPException):
     code = 500
 
 class NeedRetry(MeleeHTTPException):
     code = 500
 
-class NotServicedArea(BadRequest):
-    pass
+class BadRequest(MeleeHTTPException):
+    code = 400
 
+class SignatureError(BadRequest): pass
+class NotServicedArea(BadRequest): pass
+class AlreadyExists(BadRequest): pass
+class NotFound(BadRequest): pass
+class NotAllowed(BadRequest): pass
+class PasswdError(BadRequest): pass
+class SessionError(BadRequest): pass

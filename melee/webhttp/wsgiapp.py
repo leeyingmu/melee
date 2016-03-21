@@ -56,6 +56,7 @@ class MeleeApp(object):
 
     def before_request(self):
         self.logger.info('REQUEST', '%s?%s' % (request.path, request.query_string), request.endpoint, request.data or request.values.to_dict(), request.headers.get('User-Agent'))
+        g.endpoint = request.endpoint.split('.')[-1] if request.endpoint else None
         g.rawdata = request.data
         g.jsondata = {}
         if request.endpoint is None:
@@ -78,6 +79,9 @@ class MeleeApp(object):
                 g.jsondata = json.loads(content)
             except:
                 g.jsondata = {}
+
+            if config.appids and g.jsondata.get('appid') not in config.appids:
+                raise BadRequest(description='Reqeust appid error')
 
 
     def teardown_request(self, exc):
@@ -175,11 +179,28 @@ class MeleeApp(object):
 
     def initdb(self, arguments):
         self.logger.info(config.servicename, 'start intidb ...')
-        self.rdsdb.create_all()
+        # init rds db
+        if config.rds_binds:
+            self.logger.info(config.servicename, 'start init rdsdb ...')
+            self.rdsdb.create_all()
+        # init baiduyun lbs db
         if config.baiduyun_ak:
+            self.logger.info(config.servicename, 'start init baiduyun tables ...')
             from ..baiduyun.lbs import LBSTable
             for c in LBSTable.__subclasses__():
                 self.logger.info('init baiduyun table', c.__tablename__, c.init_schema(config.baiduyun_ak))
+        # init mongodb multi clients index model db
+        if config.mongodb_clients:
+            self.logger.info(config.servicename, 'start init mongodb ...')
+            from ..nosql.mongodb import BaseMongoMultiClientIndexModel
+            def __createindex(__model):
+                if __model.__subclasses__():
+                    for __submodel in __model.__subclasses__():
+                        __createindex(__submodel)
+                else:
+                    __model.create_index()
+            __createindex(BaseMongoMultiClientIndexModel)
+
         self.logger.info(config.servicename, 'end intidb')
 
     def run(self):

@@ -3,7 +3,7 @@
 import sys
 from setuptools import setup, find_packages
 
-__version__ = '1.0.3.gm'
+__version__ = '1.0.9.gm'
 
 install_requires = [
     'Flask', 
@@ -21,6 +21,9 @@ install_requires = [
     'redis',
     'docopt',
     'pillow', # 用于画验证码
+    'pymongo',
+    'oss',
+    'oss2'
 ]
 if sys.version_info < (2, 7):
     install_requires += ['argparse']
