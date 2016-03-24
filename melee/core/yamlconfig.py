@@ -147,6 +147,9 @@ class YamlConfig(dict):
     def sms_config(self): return copy.deepcopy(self.get('main').get('sms') or [])
 
     @property
+    def email_config(self): return copy.deepcopy(self.get('main').get('email') or {})
+
+    @property
     def rds_pool_config(self):
         c = copy.deepcopy(self.get('main').get('rds', {}).get('pool_config', {}))
         c['pool_size'] = c.get('pool_size') or 10
