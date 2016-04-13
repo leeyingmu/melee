@@ -20,7 +20,7 @@ def format_time(dt, pattern=None):
 
 def past_seconds(dt):
     ''':param dt: instance of datetime.datetime'''
-    return (datetime.datetime.now()-dt).seconds
+    return int((datetime.datetime.now()-dt).total_seconds())
 
 def uuid1():
     return uuid.uuid1().hex
