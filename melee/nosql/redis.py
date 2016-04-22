@@ -129,3 +129,7 @@ class RedisSortedSetModel(BaseRedisModel):
         if desc: return self.client.zrevrange(self.key, 0, -1, **kwargs)
         else: return self.client.zrange(self.key, 0, -1, **kwargs)
 
+class RedisStringModel(BaseRedisModel):
+    @property
+    def value(self):
+        return self.client.get(self.key)
