@@ -167,6 +167,10 @@ class YamlConfig(dict):
     def rds_binds(self):
         return self.get('main').get('rds', {}).get('binds') or {}
 
+    @property
+    def callbackpays(self):
+        return self.get('main').get('callbackpays') or {}
+
 
 
     
