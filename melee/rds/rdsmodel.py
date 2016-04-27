@@ -177,7 +177,7 @@ class RDSLibModel2(object):
         if model:
             self.model = model
         else:
-            primary_key = {k:v for k,v in kwargs.iteritems() if k in self.__primarykey__}
+            primary_key = {k:v for k,v in kwargs.iteritems() if k in self.__primary_key__}
             query = db.session.query(self.__model_cls__)
             for k,v in primary_key.iteritems():
                 query = query.filter(getattr(self.__model_cls__, k)==v)
@@ -191,7 +191,7 @@ class RDSLibModel2(object):
         
         # 保存好主键属性
         for k,v in kwargs.iteritems():
-            if k not in self.__primarykey__:
+            if k not in self.__primary_key__:
                 setattr(self, k, v)
 
     @property
@@ -223,7 +223,7 @@ class RDSLibModel2(object):
             self._mark_changed(name, value)
 
     @property
-    def primarykey(self): return {k:getattr(self, k) for k in self.__primarykey__}
+    def primarykey(self): return {k:getattr(self, k) for k in self.__primary_key__}
 
     @classmethod
     def get(cls, **kwargs):
