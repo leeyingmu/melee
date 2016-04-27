@@ -40,13 +40,14 @@ class BaseSignal(object):
        the main purpose is to catch the exception (for default)
     '''
     def send(self, sig, *args, **kwargs):
+        catch_except = kwargs.pop('catch_except', True)
         try:
             logger.info('signal send', sig.name, args, kwargs)
             sig.send(*args, **kwargs)
         except:
             logger.error('EXCEPTION', exc_info=sys.exc_info())
             logger.error('TRACEBACK', traceback.format_exc())
-            if not kwargs.get('catch_except', True):
+            if not catch_except:
                 raise
 
 def signalslot(name):
