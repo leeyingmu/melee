@@ -1,6 +1,7 @@
 main:
   servicename: template
   debugmode: true
+  appids: ['2']
   log:
     handlers: ['stdout', 'file']
     levels:
@@ -48,6 +49,9 @@ main:
       - redis://192.168.0.11:6379/0
       - redis://192.168.0.11:6379/0
 
+  rediscache:
+    test: redis://192.168.0.11:6379/0
+
   rds:
     pool_config:
       pool_size: 10
@@ -68,5 +72,27 @@ main:
       - mongodb://127.0.0.1:27017
       # - mongodb://127.0.0.1:27017
 
+  ccp:
+    baseurl: https://app.cloopen.com:8883/2013-12-26
+    account_sid: 8a48b5514f4fc588014f5db4b7de1405
+    account_token: d7924d01ff174aed9261c0fa5864de69
+    app_id: aaf98f89524954cc015253d7658f13dc
+    app_token: 2c0bca31a87a34278a9b15e219f483ad
+
+  sms:
+    # - {'name': 'neteasesms', 'kwargs': {'baseurl': 'https://api.netease.im', 'appkey': '9a1be2bcfe063aab5b41cff4e7a6bf9c', 'appsecret': '0809de49bd1d'}}
+    - {'name': 'yuntongxunsms', 'kwargs': {'baseurl': 'https://app.cloopen.com:8883/2013-12-26', 'account_sid': '8a48b5514f4fc588014f5db4b7de1405', 'account_token': 'd7924d01ff174aed9261c0fa5864de69', 'app_id': 'aaf98f89524954cc015253d7658f13dc', 'app_token': '2c0bca31a87a34278a9b15e219f483ad'}}
+  
+  email:
+    server: smtpdm.aliyun.com
+    username: serverop@mail.merben.cc
+    password: merben1234
+
+  callbackpays:
+    beecloud: 
+      - {'appid': '2', 'appID': 'd887281a-ae69-4d93-8f36-527fea8c3d81', 'appSecret': '0162e9e7-5918-45bd-83f3-ab775d592c1e', 'meleeSecret': 'SlEQDSO8RlphzXPC'}
+
+
 tasklets:
   - {'name': 'demo', 'module': 'melee.tasklets.demotask', 'number': '1', 'args': '3'}
+

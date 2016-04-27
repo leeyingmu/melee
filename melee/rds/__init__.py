@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .rdsmodel import RDSLibModel
+from .rdsmodel import RDSLibModel, RDSLibModel2

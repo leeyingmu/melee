@@ -151,7 +151,7 @@ class SMSPool(BaseSMS):
 
     def send_sms(self, phone, **kwargs):
         model = 10000
-        index = random.randint(0, model*len(self.clients))/model
+        index = random.randint(0, model*len(self.clients)-1)/model
         return self.clients[index].send_sms(phone, **kwargs)
 
 smspool = SMSPool()
