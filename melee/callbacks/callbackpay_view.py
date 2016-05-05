@@ -26,18 +26,21 @@ def before_request():
 def beecloud_pay_callback(appid, melee_secret):
     g.appid = appid
     g.melee_secret = melee_secret
+    g.jsondata.update({
+        'appid': appid,
+        'melee_secret': melee_secret
+        })
     try:
         pay = BeeCloudPay.verify_request(g)
         pay.process()
         return helpers.format_str_response('success')
     except BadRequest as e:
         logger.error('payreceipt', 'beecloud', 'badrequest', appid, g.jsondata, e.description)
+        logger.error('EXCEPTION', sys.exc_info()[1])
+        logger.error('TRACEBACK', traceback.format_exc())
         return helpers.format_str_response('bad request: %s' % e.description)
     except:
         logger.error('payreceipt', 'beecloud', 'failed', appid, g.jsondata)
         logger.error('EXCEPTION', sys.exc_info()[1])
         logger.error('TRACEBACK', traceback.format_exc())
         return helpers.format_str_response('server failed')
-
-
-

@@ -21,7 +21,7 @@ class _BasePay(object):
         self._data = copy.deepcopy(kwargs)
 
     def __getattr__(self, name):
-        if name in self.__attrs__:
+        if name in self._data:
             return self._data.get(name)
         else:
             return super(_BasePay, self).__getattr__(name)
@@ -57,7 +57,9 @@ class BeeCloudPay(_BasePay):
 
         kwargs = {k: g.jsondata.get(k) for k in cls.__attrs__ if g.jsondata.get(k) is not None}
         if len(kwargs) != len(cls.__attrs__):
+            logger.error('invalid parameters', kwargs)
             raise BadRequest(description='invalid parameters')
+        kwargs['jsondata']= g.jsondata
 
         timestamp = g.jsondata.get('timestamp')
         sign = g.jsondata.get('sign').lower()
