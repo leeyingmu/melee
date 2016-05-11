@@ -91,7 +91,7 @@ class MeleeLogging(object):
             elif handler_name == 'stdout':
                 h = logging.StreamHandler()
             elif handler_name == 'file':
-                h = logging.handlers.TimedRotatingFileHandler(self.filename, when='D', interval=1)
+                h = logging.handlers.TimedRotatingFileHandler(self.filename, when='midnight', interval=1)
             if h:
                 h.setLevel(level)
                 h.setFormatter(self.__formatter__)
