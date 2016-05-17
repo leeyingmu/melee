@@ -3,7 +3,7 @@
 import sys
 from setuptools import setup, find_packages
 
-__version__ = '1.0.13.gm'
+__version__ = '1.0.14.gm'
 
 install_requires = [
     'Flask', 

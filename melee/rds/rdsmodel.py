@@ -4,7 +4,7 @@ import datetime, time, sys, traceback, copy
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-from melee.core import utils
+from melee.core import json, utils
 from melee.core.env import logging
 from melee.webhttp import app
 
@@ -245,13 +245,15 @@ class RDSLibModel2(object):
                 setattr(self.model, name, old+delta)
             self._mark_changed(name, old+delta)
 
-    def save(self):
+    def save(self, *models):
         logger.debug('save before', self.__class__.__name__, self.primarykey, self._origin_data, self._changed_data, self.to_dict())
         if not self._changed_data and self.exists:
             logger.info('save', 'nothing changed', self.primarykey, self._origin_data, self._changed_data)
             return
         try:
             db.session.add(self.model)
+            for m in models:
+                db.session.add(m)
             db.session.commit()
             logger.info('save', self.__class__.__name__, self.primarykey, self._origin_data, self._changed_data)
         except:
