@@ -1,8 +1,40 @@
 # -*- coding: utf-8 -*-
 
+import os, time
 import logging
 import logging.handlers
 import lln
+
+
+class MyTimedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
+    '''自定义handler，修复原handler在日志切换rename报错导致日志丢失的bug'''
+
+    def __init__(self, filename, **kwargs):
+        self.filename = os.path.abspath(filename)
+        self.dirname = os.path.dirname(self.filename)
+        self._mkdirs()
+        self.baseFilename = "%s.%s" % (self.filename, time.strftime("%Y-%m-%d"))
+        logging.handlers.TimedRotatingFileHandler.__init__(self, self.baseFilename, **kwargs) 
+
+    def _mkdirs(self):  
+        if not os.path.exists(self.dirname):  
+            try:  
+                os.makedirs(self.dirname)  
+            except Exception,e:  
+                print str(e)
+
+    def doRollover(self): 
+        self.stream.close()  
+        # get the time that this sequence started at and make it a TimeTuple  
+        t = self.rolloverAt - self.interval  
+        timeTuple = time.localtime(t)  
+        sself.baseFilename = "%s.%s" % (self.filename, time.strftime("%Y-%m-%d"))
+        if self.encoding:  
+            self.stream = codecs.open(self.baseFilename, 'a', self.encoding)  
+        else:  
+            self.stream = open(self.baseFilename, 'a')  
+        self.rolloverAt = self.rolloverAt + self.interval
+
 
 class MeleeLogger(logging.getLoggerClass()):
 
@@ -91,7 +123,7 @@ class MeleeLogging(object):
             elif handler_name == 'stdout':
                 h = logging.StreamHandler()
             elif handler_name == 'file':
-                h = logging.handlers.TimedRotatingFileHandler(self.filename, when='midnight', interval=1)
+                h = MyTimedRotatingFileHandler(self.filename, when='midnight', interval=1)
             if h:
                 h.setLevel(level)
                 h.setFormatter(self.__formatter__)
