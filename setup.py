@@ -1,9 +1,9 @@
-  # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import sys
 from setuptools import setup, find_packages
 
-__version__ = '1.0.14.gm'
+__version__ = '1.0.15.gm'
 
 install_requires = [
     'Flask', 

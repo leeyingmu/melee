@@ -14,7 +14,11 @@ class MyTimedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
         self.dirname = os.path.dirname(self.filename)
         self._mkdirs()
         self.baseFilename = "%s.%s" % (self.filename, time.strftime("%Y-%m-%d"))
-        logging.handlers.TimedRotatingFileHandler.__init__(self, self.baseFilename, **kwargs) 
+        logging.handlers.TimedRotatingFileHandler.__init__(self, self.baseFilename, **kwargs)
+
+        print '++++++++++++++ __init__ +++++++++++'
+        print 'self.rolloverAt =%s' % self.rolloverAt
+        print 'self.rolloverAt =%s' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.rolloverAt))
 
     def _mkdirs(self):  
         if not os.path.exists(self.dirname):  
@@ -24,16 +28,21 @@ class MyTimedRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
                 print str(e)
 
     def doRollover(self): 
+        print '++++++++++++++ doRollover +++++++++++'
+        print 'self.rolloverAt =%s' % self.rolloverAt
+        print 'self.rolloverAt =%s' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.rolloverAt))
         self.stream.close()  
         # get the time that this sequence started at and make it a TimeTuple  
-        t = self.rolloverAt - self.interval  
-        timeTuple = time.localtime(t)  
-        sself.baseFilename = "%s.%s" % (self.filename, time.strftime("%Y-%m-%d"))
+        self.baseFilename = "%s.%s" % (self.filename, time.strftime("%Y-%m-%d"))
+        print self.baseFilename
         if self.encoding:  
             self.stream = codecs.open(self.baseFilename, 'a', self.encoding)  
         else:  
             self.stream = open(self.baseFilename, 'a')  
         self.rolloverAt = self.rolloverAt + self.interval
+        print 'next self.rolloverAt =%s' % self.rolloverAt
+        print 'next self.rolloverAt =%s' % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.rolloverAt))
+        print '++++++++++++++ doRollover end +++++++++++'
 
 
 class MeleeLogger(logging.getLoggerClass()):
@@ -112,7 +121,7 @@ class MeleeLogging(object):
         """create a logger using all the handlers
         """
         logger = logging.getLogger(name)
-        level = str(self.levels.get(name, None) or self.levels.get('default')).upper()
+        level = str(self.levels.get(name, None) or self.levels.get('default') or 'INFO').upper()
         logger.setLevel(level)
         # not propagate to father loggers
         logger.propagate = 0
@@ -124,6 +133,7 @@ class MeleeLogging(object):
                 h = logging.StreamHandler()
             elif handler_name == 'file':
                 h = MyTimedRotatingFileHandler(self.filename, when='midnight', interval=1)
+                # h = MyTimedRotatingFileHandler(self.filename, when='h', interval=1)
             if h:
                 h.setLevel(level)
                 h.setFormatter(self.__formatter__)
@@ -145,21 +155,27 @@ class MeleeLogging(object):
 if __name__ == '__main__':
     import sys, traceback
     def test(logger):
-        logger.debug('test debug')
+        # logger.debug('test debug')
         logger.info('test info')
-        logger.warn('test warn')
-        logger.error('test error')
-        logger.critical('test critical')
-        try:
-            def raiseerror():
-                raise RuntimeError('test error')
-            raiseerror()
-        except:
-            # logger.error('EXCEPTION', exc_info=sys.exc_info())
-            logger.error('TRACEBACK', traceback.format_exc())
+        # logger.warn('test warn')
+        # logger.error('test error')
+        # logger.critical('test critical')
+        # try:
+        #     def raiseerror():
+        #         raise RuntimeError('test error')
+        #     raiseerror()
+        # except:
+        #     # logger.error('EXCEPTION', exc_info=sys.exc_info())
+        #     logger.error('TRACEBACK', traceback.format_exc())
     meleelogging = MeleeLogging(rootname='melee', filename='/tmp/template.log', handlers=['stdout', 'file'], levels={'melee.example': 'debug'})
     logger = meleelogging.getLogger('melee.example')
-    test(logger)
+    # logger2 = meleelogging.getLogger('melee.example2')
+    # logger3 = meleelogging.getLogger('melee.example3')
+    for i in xrange(10000):
+        test(logger)
+        # test(logger2)
+        # test(logger3)
+        time.sleep(10)
 
 
 
